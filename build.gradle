@@ -10,9 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile "org.nanohttpd:nanohttpd:$nanohttpd_version"
-    compile "org.nanohttpd:nanohttpd-nanolets:$nanohttpd_version"
-    compile "org.nanohttpd:nanohttpd-apache-fileupload:$nanohttpd_version"
+    compile "org.eclipse.jetty.aggregate:jetty-all:$jetty_version"
 
     testCompile "junit:junit:$junit_version"
 }
