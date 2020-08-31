@@ -1,0 +1,18 @@
+group 'me.sakigamiyang'
+version '1.0.0'
+
+apply plugin: "java"
+
+repositories {
+    mavenLocal()
+    maven { url "https://maven.aliyun.com/repository/central" }
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.nanohttpd:nanohttpd:$nanohttpd_version"
+    compile "org.nanohttpd:nanohttpd-nanolets:$nanohttpd_version"
+    compile "org.nanohttpd:nanohttpd-apache-fileupload:$nanohttpd_version"
+
+    testCompile "junit:junit:$junit_version"
+}
