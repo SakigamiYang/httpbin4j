@@ -10,7 +10,11 @@ repositories {
 }
 
 dependencies {
+    compile "org.json:json:$json_version"
     compile "org.eclipse.jetty.aggregate:jetty-all:$jetty_version"
+    compile "org.projectlombok:lombok:$lombok_version"
+
+    annotationProcessor "org.projectlombok:lombok:$lombok_version"
 
     testCompile "junit:junit:$junit_version"
 }
