@@ -1,3 +1,5 @@
+package me.sakigamiyang.httpbin4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +10,10 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class Utils {
+/**
+ * Utils.
+ */
+public class Utils {
     /**
      * Convert Enumeration to Stream.
      * - Lazy
