@@ -1,6 +1,5 @@
 package me.sakigamiyang.httpbin4j.handlers;
 
-import me.sakigamiyang.httpbin4j.Utils;
 import org.eclipse.jetty.http.MultiPartFormInputStream;
 import org.eclipse.jetty.server.Request;
 import org.json.JSONException;
@@ -29,9 +28,9 @@ public class HttpMethodHandler {
                 JSONObject data = new JSONObject();
                 for (Part part : stream.getParts()) {
                     try (InputStream pis = part.getInputStream();
-                         ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                        Utils.copyStream(pis, baos);
-                        data.put(part.getName(), new String(baos.toByteArray(), StandardCharsets.UTF_8));
+                         ByteArrayOutputStream pbaos = new ByteArrayOutputStream()) {
+                        Common.copyStream(pis, pbaos);
+                        data.put(part.getName(), new String(pbaos.toByteArray(), StandardCharsets.UTF_8));
                     }
                 }
                 body.put("data", "");
@@ -40,14 +39,14 @@ public class HttpMethodHandler {
             } else {
                 String str;
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    Utils.copyStream(is, baos);
+                    Common.copyStream(is, baos);
                     str = new String(baos.toByteArray(), StandardCharsets.UTF_8);
                 }
                 body.put("data", str);
                 try {
                     body.put("json", new JSONObject(str));
                 } catch (JSONException e) {
-                    // Client can provide non-JSON data.
+                    body.put("json", JSONObject.NULL);
                 }
             }
 

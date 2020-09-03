@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     compile "org.json:json:$json_version"
+    compile "commons-codec:commons-codec:$commons_codec_version"
     compile "org.eclipse.jetty.aggregate:jetty-all:$jetty_version"
     compile "org.projectlombok:lombok:$lombok_version"
 
