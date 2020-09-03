@@ -1,70 +1,16 @@
 package me.sakigamiyang.httpbin4j;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-/**
- * Utils.
- */
 public class Utils {
-    /**
-     * Convert Enumeration to Stream.
-     * - Lazy
-     * - Don't process any items before the terminal action has been commenced and if the terminal operation is short-circuiting
-     * - Iterate only as many items as necessary
-     *
-     * @param enumeration enumeration
-     * @param <T>         type of elements
-     * @return stream
-     */
-    public static <T> Stream<T> enumerationAsStream(Enumeration<T> enumeration) {
-        return StreamSupport.stream(
-                new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
-                    @Override
-                    public boolean tryAdvance(Consumer<? super T> action) {
-                        if (enumeration.hasMoreElements()) {
-                            action.accept(enumeration.nextElement());
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public void forEachRemaining(Consumer<? super T> action) {
-                        while (enumeration.hasMoreElements()) {
-                            action.accept(enumeration.nextElement());
-                        }
-                    }
-                },
-                false);
-    }
+    public static String ifNullSetEmpty(String s) { return ifNullSetDefault(s, ""); }
 
     /**
-     * Read from input stream and write to output stream.
+     * Return string if not null, else specific default value.
      *
-     * @param from input stream
-     * @param to   output stream
-     * @return byte count of content
-     * @throws IOException IO exception
+     * @param s            string
+     * @param defaultValue default value
+     * @return string if not null, or else default value
      */
-    public static long copyStream(InputStream from, OutputStream to) throws IOException {
-        byte[] buf = new byte[4096];
-        long total = 0;
-        while (true) {
-            int length = from.read(buf);
-            if (length == -1) {
-                break;
-            }
-            to.write(buf, 0, length);
-            total += length;
-        }
-        return total;
+    public static String ifNullSetDefault(String s, String defaultValue) {
+        return s == null ? defaultValue : s;
     }
 }
