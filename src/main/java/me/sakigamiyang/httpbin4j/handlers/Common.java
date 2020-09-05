@@ -173,4 +173,26 @@ public class Common {
                 },
                 false);
     }
+
+    /**
+     * Parse header with like "k1=v1,k2=v2,...".
+     *
+     * @param value header value
+     * @return k-v map
+     */
+    public static Map<String, String> parseDictHeader(String value) {
+        Map<String, String> result = new HashMap<>();
+
+        if (value != null) {
+            for (String item : value.split(",")) {
+                if (!item.contains("=")) {
+                    result.put(item, null);
+                }
+                String[] tempArray = item.split("=", 2);
+                result.put(tempArray[0].trim(), tempArray[1].replaceAll("\"", "").trim());
+            }
+        }
+
+        return result;
+    }
 }
