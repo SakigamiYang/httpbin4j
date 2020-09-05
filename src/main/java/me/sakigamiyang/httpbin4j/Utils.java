@@ -1,7 +1,15 @@
 package me.sakigamiyang.httpbin4j;
 
 public class Utils {
-    public static String ifNullSetEmpty(String s) { return ifNullSetDefault(s, ""); }
+    /**
+     * Return string if not null, else empty string.
+     *
+     * @param s string
+     * @return string if not null, or else empty string
+     */
+    public static String ifNullSetEmpty(String s) {
+        return ifNullSetDefault(s, "");
+    }
 
     /**
      * Return string if not null, else specific default value.
