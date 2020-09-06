@@ -189,7 +189,7 @@ public class AuthHandler {
                 .orElse(new Cookie("last_nonce", null))
                 .getValue();
         if (currentNonce.equals(lastNonceValue) || "0".equals(staleAfterValue)) {
-            digestUnauthorizedResponse(request, response, qop, algorithm, false);
+            digestUnauthorizedResponse(request, response, qop, algorithm, true);
             response.addCookie(new Cookie("stale_after", staleAfter));
             response.addCookie(new Cookie("fake", "fake_value"));
             response.addCookie(new Cookie("last_nonce", currentNonce));
