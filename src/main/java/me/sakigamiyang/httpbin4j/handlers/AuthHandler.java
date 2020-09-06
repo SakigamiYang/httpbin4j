@@ -83,8 +83,7 @@ public class AuthHandler {
                                         String staleAfter) throws IOException {
         try (InputStream is = request.getInputStream();
              OutputStream os = response.getOutputStream()) {
-            Common.copyStream(is, Common.NULL_OUTPUT_STREAM);
-            digestAuth(request, response, os, qop, user, passwd, algorithm, staleAfter);
+            digestAuth(request, response, is, os, qop, user, passwd, algorithm, staleAfter);
             baseRequest.setHandled(true);
         }
     }
@@ -134,6 +133,7 @@ public class AuthHandler {
 
     private static void digestAuth(HttpServletRequest request,
                                    HttpServletResponse response,
+                                   InputStream is,
                                    OutputStream os,
                                    String qop,
                                    String user,
@@ -195,9 +195,15 @@ public class AuthHandler {
             response.addCookie(new Cookie("last_nonce", currentNonce));
             return;
         }
-        // TODO:
-        // not check_digest_auth(user, passwd)
 
+        String requestBody = Common.readStream(is);
+        if (checkDigestAuth(request, requestBody, digestAuth, user, passwd)) {
+            digestUnauthorizedResponse(request, response, qop, algorithm, false);
+            response.addCookie(new Cookie("stale_after", staleAfter));
+            response.addCookie(new Cookie("fake", "fake_value"));
+            response.addCookie(new Cookie("last_nonce", currentNonce));
+            return;
+        }
 
         JSONObject body = new JSONObject();
         body.put("authenticated", true);
@@ -311,5 +317,15 @@ public class AuthHandler {
         } catch (Throwable t) {
             return DIGEST_AUTH_DEFAULT_STALE_AFTER;
         }
+    }
+
+    private static boolean checkDigestAuth(HttpServletRequest request,
+                                           String requestBody,
+                                           DigestAuth digestAuth,
+                                           String user,
+                                           String passwd) {
+        String requestUri = request.getServletPath() + "?" + request.getQueryString();
+        String reponseHash = ""; // TODO
+        return digestAuth.getResponse().equals(reponseHash);
     }
 }

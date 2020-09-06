@@ -6,9 +6,7 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
@@ -35,6 +33,25 @@ public class Common {
         public void write(byte[] b, int off, int len) {
         }
     };
+
+    /**
+     * Read from input stream.
+     *
+     * @param from input stream
+     * @return content
+     * @throws IOException
+     */
+    public static String readStream(InputStream from) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(from))) {
+            char[] charBuffer = new char[128];
+            int bytesRead = -1;
+            while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+                sb.append(charBuffer, 0, bytesRead);
+            }
+        }
+        return sb.toString();
+    }
 
     /**
      * Read from input stream and write to output stream.
@@ -206,7 +223,7 @@ public class Common {
      * @param algorithm algorithm
      * @return hash result string
      */
-    @SuppressWarnings({"deprecation"})
+    @SuppressWarnings({"deprecation", "UnstableApiUsage"})
     public static String hash(String data, String algorithm) {
         switch (algorithm) {
             case "sha-256":
