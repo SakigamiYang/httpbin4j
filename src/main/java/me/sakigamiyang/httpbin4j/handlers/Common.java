@@ -1,5 +1,6 @@
 package me.sakigamiyang.httpbin4j.handlers;
 
+import com.google.common.hash.Hashing;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -129,15 +130,17 @@ public class Common {
      * @param response   response
      * @param os         output stream
      * @param jsonObject json object (body of response)
+     * @param status     status
      * @throws IOException IO exception
      */
     public static void respondJSON(HttpServletResponse response,
                                    OutputStream os,
-                                   JSONObject jsonObject) throws IOException {
+                                   JSONObject jsonObject,
+                                   int status) throws IOException {
         byte[] body = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
         response.setContentLengthLong(body.length);
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(status);
         os.write(body);
         os.flush();
     }
@@ -194,5 +197,24 @@ public class Common {
         }
 
         return result;
+    }
+
+    /**
+     * hash functions
+     *
+     * @param data      data
+     * @param algorithm algorithm
+     * @return hash result string
+     */
+    @SuppressWarnings({"deprecation"})
+    public static String hash(String data, String algorithm) {
+        switch (algorithm) {
+            case "sha-256":
+                return Hashing.sha256().hashBytes(data.getBytes()).toString();
+            case "sha-512":
+                return Hashing.sha512().hashBytes(data.getBytes()).toString();
+            default:
+                return Hashing.md5().hashBytes(data.getBytes()).toString();
+        }
     }
 }

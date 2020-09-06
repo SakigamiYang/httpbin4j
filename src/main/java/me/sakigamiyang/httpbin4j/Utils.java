@@ -1,5 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
+import java.text.DateFormat;
+
 public class Utils {
     /**
      * Return string if not null, else empty string.

@@ -55,7 +55,7 @@ public class HttpMethodHandler {
             body.put("headers", Common.mapHeadersToJSON(request));
             body.put("args", Common.mapArgsToJSON(request));
 
-            Common.respondJSON(response, os, body);
+            Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
             baseRequest.setHandled(true);
         }
     }

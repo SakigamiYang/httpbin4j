@@ -6,18 +6,18 @@ import me.sakigamiyang.httpbin4j.handlers.entity.auth.BasicAuth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.BearerAuth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.DigestAuth;
 import org.eclipse.jetty.server.Request;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 
 public class AuthHandler {
     private static final String DIGEST_AUTH_DEFAULT_ALGORITHM = "md5";
@@ -39,6 +39,8 @@ public class AuthHandler {
                     DIGEST_AUTH_INFO_KEY_NONCE,
                     DIGEST_AUTH_INFO_KEY_URI,
                     DIGEST_AUTH_INFO_KEY_RESPONSE);
+
+    private static final Random rand = new Random(19880124);
 
     public static void handleBasicAuth(Request baseRequest,
                                        HttpServletRequest request,
@@ -110,7 +112,7 @@ public class AuthHandler {
         JSONObject body = new JSONObject();
         body.put("authenticated", true);
         body.put("user", user);
-        Common.respondJSON(response, os, body);
+        Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
     }
 
     private static void bearer(HttpServletRequest request,
@@ -127,7 +129,7 @@ public class AuthHandler {
         JSONObject body = new JSONObject();
         body.put("authenticated", true);
         body.put("token", bearerAuth.getToken());
-        Common.respondJSON(response, os, body);
+        Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
     }
 
     private static void digestAuth(HttpServletRequest request,
@@ -148,7 +150,63 @@ public class AuthHandler {
             algorithm = DIGEST_AUTH_DEFAULT_ALGORITHM;
         }
 
+        Auth auth = parseAuthorizationHeader(request.getHeader("Authorization"));
+        if (!(auth instanceof DigestAuth) ||
+                (requireCookieHandling && request.getHeader("Cookie") == null)) {
+            digestUnauthorizedResponse(request, response, qop, algorithm, false);
+            response.addCookie(new Cookie("stale_after", staleAfter));
+            response.addCookie(new Cookie("fake", "fake_value"));
+            return;
+        }
+
+        DigestAuth digestAuth = (DigestAuth) auth;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) cookies = new Cookie[0];
+        List<Cookie> cookieList = Arrays.asList(cookies);
+
+        Cookie fake = cookieList.parallelStream()
+                .filter(cookie -> "fake".equalsIgnoreCase(cookie.getName()))
+                .findFirst()
+                .orElse(new Cookie("fake", "fake_value"));
+        if (requireCookieHandling && !"fake_value".equals(fake.getValue())) {
+            JSONObject body = new JSONObject();
+            body.put("errors", new JSONArray().put("missing cookie set on challenge"));
+            Common.respondJSON(response, os, body, HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        String currentNonce = digestAuth.getNonce();
+        String staleAfterValue = cookieList.parallelStream()
+                .filter(cookie -> "stale_after".equalsIgnoreCase(cookie.getName()))
+                .findFirst()
+                .orElse(new Cookie("stale_after", null))
+                .getValue();
+
+        String lastNonceValue = cookieList.parallelStream()
+                .filter(cookie -> "last_nonce".equalsIgnoreCase(cookie.getName()))
+                .findFirst()
+                .orElse(new Cookie("last_nonce", null))
+                .getValue();
+        if (currentNonce.equals(lastNonceValue) || "0".equals(staleAfterValue)) {
+            digestUnauthorizedResponse(request, response, qop, algorithm, false);
+            response.addCookie(new Cookie("stale_after", staleAfter));
+            response.addCookie(new Cookie("fake", "fake_value"));
+            response.addCookie(new Cookie("last_nonce", currentNonce));
+            return;
+        }
         // TODO:
+        // not check_digest_auth(user, passwd)
+
+
+        JSONObject body = new JSONObject();
+        body.put("authenticated", true);
+        body.put("user", user);
+        Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
+        response.addCookie(new Cookie("fake", "fake_value"));
+        if (staleAfterValue != null) {
+            response.addCookie(new Cookie("stale_after", nextStaleAfterValue(staleAfterValue)));
+        }
     }
 
     private static Auth parseAuthorizationHeader(String value) {
@@ -222,5 +280,36 @@ public class AuthHandler {
                 break;
         }
         return null;
+    }
+
+    private static void digestUnauthorizedResponse(HttpServletRequest request,
+                                                   HttpServletResponse response,
+                                                   String qop,
+                                                   String algorithm,
+                                                   boolean stale) {
+        String nonce = Common.hash(
+                String.join(":", request.getRemoteAddr(),
+                        String.valueOf(Instant.now().toEpochMilli()),
+                        String.valueOf(rand.nextInt())),
+                algorithm);
+        String opaque = Common.hash(String.valueOf(rand.nextInt()), algorithm);
+        String value = String.join(",",
+                "me@sakigami-yang.me",
+                nonce,
+                String.format("opaque=%s", opaque),
+                String.format("qop=%s", qop == null ? "\"auth,auth-int\"" : qop),
+                String.format("algorithm=%s", algorithm),
+                String.format("stale=%s", stale));
+
+        response.setHeader("WWW-Authenticate", value);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    private static String nextStaleAfterValue(String staleAfterValue) {
+        try {
+            return String.valueOf(Integer.parseInt(staleAfterValue) - 1);
+        } catch (Throwable t) {
+            return DIGEST_AUTH_DEFAULT_STALE_AFTER;
+        }
     }
 }
