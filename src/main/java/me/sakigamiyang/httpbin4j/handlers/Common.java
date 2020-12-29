@@ -142,6 +142,30 @@ public class Common {
     }
 
     /**
+     * Respond HTML data.
+     *
+     * @param response response
+     * @param os       output stream
+     * @param body     body of response
+     * @param status   status
+     * @throws IOException IO exception
+     */
+    public static void respondHTML(HttpServletResponse response,
+                                   OutputStream os,
+                                   byte[] body,
+                                   int status) throws IOException {
+        response.setContentLengthLong(body.length);
+        response.setContentType("text/html");
+        response.setCharacterEncoding("utf-8");
+        response.setDateHeader("Date", (new Date()).getTime());
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setStatus(status);
+        os.write(body);
+        os.flush();
+    }
+
+    /**
      * Respond JSON data.
      *
      * @param response   response
@@ -157,6 +181,10 @@ public class Common {
         byte[] body = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
         response.setContentLengthLong(body.length);
         response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+        response.setDateHeader("Date", (new Date()).getTime());
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setStatus(status);
         os.write(body);
         os.flush();

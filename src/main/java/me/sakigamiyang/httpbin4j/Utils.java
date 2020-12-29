@@ -1,6 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
-import java.text.DateFormat;
+import java.util.Date;
+import java.util.Random;
 
 public class Utils {
     /**
@@ -22,5 +23,17 @@ public class Utils {
      */
     public static String ifNullSetDefault(String s, String defaultValue) {
         return s == null ? defaultValue : s;
+    }
+
+    /**
+     * Choice an element from an array randomly.
+     *
+     * @param array target array
+     * @param <T>   type of element
+     * @return randomly chosen element
+     */
+    public static <T> T randomChoice(T[] array) {
+        Random rand = new Random((new Date()).getTime());
+        return array[rand.nextInt(array.length)];
     }
 }

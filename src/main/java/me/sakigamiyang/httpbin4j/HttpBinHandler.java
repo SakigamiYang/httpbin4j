@@ -1,10 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
 import lombok.extern.slf4j.Slf4j;
-import me.sakigamiyang.httpbin4j.handlers.AuthHandler;
-import me.sakigamiyang.httpbin4j.handlers.DenyHandler;
-import me.sakigamiyang.httpbin4j.handlers.HomeHandler;
-import me.sakigamiyang.httpbin4j.handlers.HttpMethodHandler;
+import me.sakigamiyang.httpbin4j.handlers.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
@@ -46,7 +43,8 @@ public class HttpBinHandler extends AbstractHandler {
             AuthHandler.handleBasicAuth(baseRequest, request, response, user, passwd);
         } else if (uri.startsWith("/bearer")) {
             AuthHandler.handleBearer(baseRequest, request, response);
-        } else if (uri.startsWith("/digest-auth/")) {// /hidden-basic-auth/{user}/{passwd}
+        } else if (uri.startsWith("/digest-auth/")) {
+            // /hidden-basic-auth/{user}/{passwd}
             String[] auth = uri.substring("/digest-auth/".length()).split("/", 5);
             if (auth.length < 3 || auth.length > 5) {
                 response.sendRedirect("/deny");
@@ -66,6 +64,10 @@ public class HttpBinHandler extends AbstractHandler {
             String user = auth[0];
             String passwd = auth[1];
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
+        } else if (uri.startsWith("/status/")) {
+            // /status/{codes}
+            String[] codes = uri.substring("/status/".length()).split(",");
+            StatusCodeHandler.handleStatus(baseRequest, request, response, codes);
         } else if (uri.startsWith("/deny")) {
             DenyHandler.handle(baseRequest, response);
         } else {
