@@ -25,7 +25,7 @@ public class RequestInspectionHandler {
                                 HttpServletResponse response) throws IOException {
         try (OutputStream os = response.getOutputStream()) {
             JSONObject body = new JSONObject();
-            body.put("origin", request.getRemoteAddr());
+            body.put("origin", Common.getClientIpAddress(request));
             Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
             baseRequest.setHandled(true);
         }
