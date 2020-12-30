@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 public class HttpMethodHandler {
     public static void handleHttpMethod(Request baseRequest,
@@ -30,7 +29,7 @@ public class HttpMethodHandler {
                     try (InputStream pis = part.getInputStream();
                          ByteArrayOutputStream pbaos = new ByteArrayOutputStream()) {
                         Common.copyStream(pis, pbaos);
-                        data.put(part.getName(), new String(pbaos.toByteArray(), StandardCharsets.UTF_8));
+                        data.put(part.getName(), pbaos.toString("UTF-8"));
                     }
                 }
                 body.put("data", "");
@@ -40,7 +39,7 @@ public class HttpMethodHandler {
                 String str;
                 try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     Common.copyStream(is, baos);
-                    str = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+                    str = baos.toString("UTF-8");
                 }
                 body.put("data", str);
                 try {

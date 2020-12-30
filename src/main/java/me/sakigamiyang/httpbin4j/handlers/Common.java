@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -26,11 +27,11 @@ public class Common {
         }
 
         @Override
-        public void write(byte[] b) {
+        public void write(@Nonnull byte[] b) {
         }
 
         @Override
-        public void write(byte[] b, int off, int len) {
+        public void write(@Nonnull byte[] b, int off, int len) {
         }
     };
 
@@ -39,13 +40,13 @@ public class Common {
      *
      * @param from input stream
      * @return content
-     * @throws IOException
+     * @throws IOException IO exception
      */
     public static String readStream(InputStream from) throws IOException {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(from))) {
             char[] charBuffer = new char[128];
-            int bytesRead = -1;
+            int bytesRead;
             while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
                 sb.append(charBuffer, 0, bytesRead);
             }

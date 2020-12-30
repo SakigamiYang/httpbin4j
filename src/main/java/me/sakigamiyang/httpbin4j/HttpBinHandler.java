@@ -68,6 +68,12 @@ public class HttpBinHandler extends AbstractHandler {
             // /status/{codes}
             String[] codes = uri.substring("/status/".length()).split(",");
             StatusCodeHandler.handleStatus(baseRequest, request, response, codes);
+        } else if (uri.startsWith("/headers")) {
+            RequestInspectionHandler.handleHeaders(baseRequest, request, response);
+        } else if (uri.startsWith("/ip")) {
+            RequestInspectionHandler.handleIP(baseRequest, request, response);
+        } else if (uri.startsWith("/user-agent")) {
+            RequestInspectionHandler.handleUserAgent(baseRequest, request, response);
         } else if (uri.startsWith("/deny")) {
             DenyHandler.handle(baseRequest, response);
         } else {
