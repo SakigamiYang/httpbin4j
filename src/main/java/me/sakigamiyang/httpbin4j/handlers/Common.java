@@ -185,7 +185,7 @@ public class Common {
         response.setContentLengthLong(body.length);
         response.setContentType("text/html");
         response.setCharacterEncoding("utf-8");
-        response.setDateHeader("Date", (new Date()).getTime());
+        response.setDateHeader("Date", new Date().getTime());
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Credentials", "true");
         response.setStatus(status);

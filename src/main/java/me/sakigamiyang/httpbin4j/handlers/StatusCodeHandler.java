@@ -12,9 +12,9 @@ public class StatusCodeHandler {
     public static void handleStatus(Request baseRequest,
                                     HttpServletRequest request,
                                     HttpServletResponse response,
-                                    String[] codes) throws IOException {
+                                    Integer[] codes) throws IOException {
         try (OutputStream os = response.getOutputStream()) {
-            int status = Integer.parseInt(Utils.randomChoice(codes));
+            int status =  Utils.randomChoice(codes);
             Common.respondHTML(response, os, new byte[0], status);
             baseRequest.setHandled(true);
         }

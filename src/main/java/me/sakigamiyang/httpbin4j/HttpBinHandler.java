@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * HttpBinHandler.
@@ -32,7 +33,7 @@ public class HttpBinHandler extends AbstractHandler {
                 (method.equals("POST") && uri.equals("/post")) ||
                 (method.equals("PUT") && uri.equals("/put"))) {
             HttpMethodHandler.handleHttpMethod(baseRequest, request, response);
-        } else if (uri.startsWith("/basic-auth/")) {
+        } else if (method.equals("GET") && uri.startsWith("/basic-auth/")) {
             // /basic-auth/{user}/{passwd}
             String[] auth = uri.substring("/basic-auth/".length()).split("/", 2);
             if (auth.length != 2) {
@@ -41,9 +42,9 @@ public class HttpBinHandler extends AbstractHandler {
             String user = auth[0];
             String passwd = auth[1];
             AuthHandler.handleBasicAuth(baseRequest, request, response, user, passwd);
-        } else if (uri.startsWith("/bearer")) {
+        } else if (method.equals("GET") && uri.startsWith("/bearer")) {
             AuthHandler.handleBearer(baseRequest, request, response);
-        } else if (uri.startsWith("/digest-auth/")) {
+        } else if (method.equals("GET") && uri.startsWith("/digest-auth/")) {
             // /hidden-basic-auth/{user}/{passwd}
             String[] auth = uri.substring("/digest-auth/".length()).split("/", 5);
             if (auth.length < 3 || auth.length > 5) {
@@ -55,7 +56,7 @@ public class HttpBinHandler extends AbstractHandler {
             String algorithm = auth.length < 4 ? null : auth[3].toLowerCase();
             String staleAfter = auth.length < 5 ? null : auth[4].toLowerCase();
             AuthHandler.handleDigestAuth(baseRequest, request, response, qop, user, passwd, algorithm, staleAfter);
-        } else if (uri.startsWith("/hidden-basic-auth/")) {
+        } else if (method.equals("GET") && uri.startsWith("/hidden-basic-auth/")) {
             // /hidden-basic-auth/{user}/{passwd}
             String[] auth = uri.substring("/hidden-basic-auth/".length()).split("/", 2);
             if (auth.length != 2) {
@@ -66,14 +67,37 @@ public class HttpBinHandler extends AbstractHandler {
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
         } else if (uri.startsWith("/status/")) {
             // /status/{codes}
-            String[] codes = uri.substring("/status/".length()).split(",");
-            StatusCodeHandler.handleStatus(baseRequest, request, response, codes);
-        } else if (uri.startsWith("/headers")) {
+            try {
+                String[] strCodes = uri.substring("/status/".length()).split(",");
+                Integer[] codes = Arrays.stream(strCodes).map(Integer::parseInt).toArray(Integer[]::new);
+                StatusCodeHandler.handleStatus(baseRequest, request, response, codes);
+            } catch (Throwable t) {
+                response.sendRedirect("/deny");
+            }
+        } else if (method.equals("GET") && uri.startsWith("/headers")) {
             RequestInspectionHandler.handleHeaders(baseRequest, request, response);
-        } else if (uri.startsWith("/ip")) {
+        } else if (method.equals("GET") && uri.startsWith("/ip")) {
             RequestInspectionHandler.handleIP(baseRequest, request, response);
-        } else if (uri.startsWith("/user-agent")) {
+        } else if (method.equals("GET") && uri.startsWith("/user-agent")) {
             RequestInspectionHandler.handleUserAgent(baseRequest, request, response);
+        } else if (method.equals("GET") && uri.startsWith("/cache")) {
+            ResponseInspectionHandler.handleCache(baseRequest, request, response);
+        } else if (method.equals("GET") && uri.startsWith("/cache/")) {
+            // /cache/{value}
+            try {
+                String strValue = uri.substring("/cache/".length());
+                int value = Integer.parseInt(strValue);
+                ResponseInspectionHandler.handleCacheValue(baseRequest, request, response, value);
+            } catch (Throwable t) {
+                response.sendRedirect("/deny");
+            }
+        } else if (method.equals("GET") && uri.startsWith("/etag/")) {
+            // /etag/{etag}
+            String etag = uri.substring("/etag/".length());
+            ResponseInspectionHandler.handleEtag(baseRequest, request, response, etag);
+        } else if ((method.equals("GET") && uri.startsWith("/response-headers")) ||
+                (method.equals("POST") && uri.startsWith("/response-headers"))) {
+            ResponseInspectionHandler.handleResponseHeaders(baseRequest, request, response);
         } else if (uri.startsWith("/deny")) {
             DenyHandler.handle(baseRequest, response);
         } else {
