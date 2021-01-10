@@ -4,13 +4,15 @@ import org.eclipse.jetty.server.Request;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class HomeHandler {
     public static void handle(Request baseRequest,
                               HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setHeader("Content-Type", "text/html; charset=utf-8");
-        Common.copyResource(response, "/index.html");
-        baseRequest.setHandled(true);
+        try (OutputStream os = response.getOutputStream()) {
+            byte[] body = Common.getResource("/index.html");
+            Common.respondHTML(response, os, body, HttpServletResponse.SC_OK);
+            baseRequest.setHandled(true);
+        }
     }
 }

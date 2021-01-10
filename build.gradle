@@ -16,6 +16,7 @@ repositories {
 dependencies {
     compile "org.json:json:$json_version"
     compile "com.google.guava:guava:$guava_version"
+    compile "com.googlecode.json-simple:json-simple:$json_simple_version"
     compile "org.eclipse.jetty.aggregate:jetty-all:$jetty_version"
     compile "org.projectlombok:lombok:$lombok_version"
 

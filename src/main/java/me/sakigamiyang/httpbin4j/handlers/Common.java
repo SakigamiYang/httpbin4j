@@ -2,6 +2,7 @@ package me.sakigamiyang.httpbin4j.handlers;
 
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
+import com.google.common.io.ByteStreams;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -78,16 +79,15 @@ public class Common {
     }
 
     /**
-     * Copy resource.
+     * Load a classpath resource to an array of byte.
      *
-     * @param response response
      * @param resource resource uri
+     * @return array of byte
      * @throws IOException IO exception
      */
-    public static void copyResource(HttpServletResponse response, String resource) throws IOException {
+    public static byte[] getResource(String resource) throws IOException {
         try (InputStream is = Common.class.getResourceAsStream(resource)) {
-            long length = copyStream(is, response.getOutputStream());
-            response.setContentLengthLong(length);
+            return ByteStreams.toByteArray(is);
         }
     }
 
@@ -170,6 +170,22 @@ public class Common {
     }
 
     /**
+     * Respond plain text.
+     *
+     * @param response response
+     * @param os       output stream
+     * @param body     body of response
+     * @param status   status
+     * @throws IOException IO exception
+     */
+    public static void respondPlainText(HttpServletResponse response,
+                                        OutputStream os,
+                                        byte[] body,
+                                        int status) throws IOException {
+        responseData(response, os, body, status, "text/plain");
+    }
+
+    /**
      * Respond HTML data.
      *
      * @param response response
@@ -182,15 +198,23 @@ public class Common {
                                    OutputStream os,
                                    byte[] body,
                                    int status) throws IOException {
-        response.setContentLengthLong(body.length);
-        response.setContentType("text/html");
-        response.setCharacterEncoding("utf-8");
-        response.setDateHeader("Date", new Date().getTime());
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setStatus(status);
-        os.write(body);
-        os.flush();
+        responseData(response, os, body, status, "text/html");
+    }
+
+    /**
+     * Respond XML data.
+     *
+     * @param response response
+     * @param os       output stream
+     * @param body     body of response
+     * @param status   status
+     * @throws IOException IO exception
+     */
+    public static void respondXML(HttpServletResponse response,
+                                  OutputStream os,
+                                  byte[] body,
+                                  int status) throws IOException {
+        responseData(response, os, body, status, "application/xml");
     }
 
     /**
@@ -207,8 +231,16 @@ public class Common {
                                    JSONObject jsonObject,
                                    int status) throws IOException {
         byte[] body = jsonObject.toString().getBytes(StandardCharsets.UTF_8);
+        responseData(response, os, body, status, "application/json");
+    }
+
+    private static void responseData(HttpServletResponse response,
+                                     OutputStream os,
+                                     byte[] body,
+                                     int status,
+                                     String contentType) throws IOException {
         response.setContentLengthLong(body.length);
-        response.setContentType("application/json");
+        response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
         response.setDateHeader("Date", (new Date()).getTime());
         response.setHeader("Access-Control-Allow-Origin", "*");
@@ -282,6 +314,7 @@ public class Common {
         List<String> parsedParts = new ArrayList<>();
         if (Strings.isNullOrEmpty(headerValue)) {
             for (String part : headerValue.split(",")) {
+                // TODO:
                 if (true) {
                     parsedParts.add(part);
                 }

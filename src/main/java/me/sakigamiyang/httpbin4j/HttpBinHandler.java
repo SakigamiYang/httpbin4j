@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.sakigamiyang.httpbin4j.handlers.*;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.json.simple.parser.ParseException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,11 +30,11 @@ public class HttpBinHandler extends AbstractHandler {
             HomeHandler.handle(baseRequest, response);
         } else if (uri.startsWith("/deny")) {
             DenyHandler.handle(baseRequest, response);
-        } else if ((method.equals("DELETE") && uri.equals("/delete")) ||
-                (method.equals("GET") && uri.equals("/get")) ||
-                (method.equals("PATCH") && uri.equals("/patch")) ||
-                (method.equals("POST") && uri.equals("/post")) ||
-                (method.equals("PUT") && uri.equals("/put"))) {
+        } else if ((method.equals("DELETE") && uri.equals("/delete"))
+                || (method.equals("GET") && uri.equals("/get"))
+                || (method.equals("PATCH") && uri.equals("/patch"))
+                || (method.equals("POST") && uri.equals("/post"))
+                || (method.equals("PUT") && uri.equals("/put"))) {
             HttpMethodHandler.handleHttpMethod(baseRequest, request, response);
         } else if (method.equals("GET") && uri.startsWith("/basic-auth/")) {
             // /basic-auth/{user}/{passwd}
@@ -67,7 +68,12 @@ public class HttpBinHandler extends AbstractHandler {
             String user = auth[0];
             String passwd = auth[1];
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
-        } else if (uri.startsWith("/status/")) {
+        } else if ((method.equals("GET")
+                || method.equals("POST")
+                || method.equals("PUT")
+                || method.equals("DELETE")
+                || method.equals("PATCH"))
+                && uri.startsWith("/status/")) {
             // /status/{codes}
             try {
                 String[] strCodes = uri.substring("/status/".length()).split(",");
@@ -90,25 +96,40 @@ public class HttpBinHandler extends AbstractHandler {
                 String strValue = uri.substring("/cache/".length());
                 int value = Integer.parseInt(strValue);
                 ResponseInspectionHandler.handleCacheValue(baseRequest, request, response, value);
-            } catch (Throwable t) {
+            } catch (NumberFormatException e) {
                 response.sendRedirect("/deny");
             }
         } else if (method.equals("GET") && uri.startsWith("/etag/")) {
             // /etag/{etag}
             String etag = uri.substring("/etag/".length());
             ResponseInspectionHandler.handleEtag(baseRequest, request, response, etag);
-        } else if ((method.equals("GET") && uri.startsWith("/response-headers")) ||
-                (method.equals("POST") && uri.startsWith("/response-headers"))) {
+        } else if ((method.equals("GET")
+                || method.equals("POST"))
+                && uri.startsWith("/response-headers")) {
             ResponseInspectionHandler.handleResponseHeaders(baseRequest, request, response);
-        } else if ((method.equals("GET")) && uri.startsWith("/brotli")) {
+        } else if (method.equals("GET") && uri.startsWith("/brotli")) {
             ResponseFormatHandler.handleCompression(
                     baseRequest, request, response, ResponseFormatHandler.CompressionType.BROTLI);
-        } else if ((method.equals("GET")) && uri.startsWith("/deflate")) {
+        } else if (method.equals("GET") && uri.startsWith("/deflate")) {
             ResponseFormatHandler.handleCompression(
                     baseRequest, request, response, ResponseFormatHandler.CompressionType.DEFLATE);
-        } else if ((method.equals("GET")) && uri.startsWith("/gzip")) {
+        } else if (method.equals("GET") && uri.startsWith("/gzip")) {
             ResponseFormatHandler.handleCompression(
                     baseRequest, request, response, ResponseFormatHandler.CompressionType.GZIP);
+        } else if (method.equals("GET") && uri.startsWith("/encoding/utf8")) {
+            ResponseFormatHandler.handleEncodingUTF8(baseRequest, response);
+        } else if (method.equals("GET") && uri.startsWith("/html")) {
+            ResponseFormatHandler.handleHTML(baseRequest, response);
+        } else if (method.equals("GET") && uri.startsWith("/json")) {
+            try {
+                ResponseFormatHandler.handleJSON(baseRequest, response);
+            } catch (ParseException e) {
+                response.sendRedirect("/deny");
+            }
+        } else if (method.equals("GET") && uri.startsWith("/xml")) {
+            ResponseFormatHandler.handleXML(baseRequest, response);
+        } else if (method.equals("GET") && uri.startsWith("/robots.txt")) {
+            ResponseFormatHandler.handleRobotsTxt(baseRequest, response);
         }
 
         // disallowed route
