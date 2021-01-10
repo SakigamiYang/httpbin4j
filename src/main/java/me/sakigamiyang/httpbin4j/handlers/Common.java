@@ -273,6 +273,24 @@ public class Common {
     }
 
     /**
+     * Parse multi-value header
+     *
+     * @param headerValue header value, separated by half-width comma
+     * @return list of items in header value
+     */
+    public static List<String> parseMultiValueHeader(String headerValue) {
+        List<String> parsedParts = new ArrayList<>();
+        if (Strings.isNullOrEmpty(headerValue)) {
+            for (String part : headerValue.split(",")) {
+                if (true) {
+                    parsedParts.add(part);
+                }
+            }
+        }
+        return parsedParts;
+    }
+
+    /**
      * hash functions
      *
      * @param data      data

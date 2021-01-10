@@ -27,6 +27,8 @@ public class HttpBinHandler extends AbstractHandler {
 
         if (uri.equals("/")) {
             HomeHandler.handle(baseRequest, response);
+        } else if (uri.startsWith("/deny")) {
+            DenyHandler.handle(baseRequest, response);
         } else if ((method.equals("DELETE") && uri.equals("/delete")) ||
                 (method.equals("GET") && uri.equals("/get")) ||
                 (method.equals("PATCH") && uri.equals("/patch")) ||
@@ -98,9 +100,19 @@ public class HttpBinHandler extends AbstractHandler {
         } else if ((method.equals("GET") && uri.startsWith("/response-headers")) ||
                 (method.equals("POST") && uri.startsWith("/response-headers"))) {
             ResponseInspectionHandler.handleResponseHeaders(baseRequest, request, response);
-        } else if (uri.startsWith("/deny")) {
-            DenyHandler.handle(baseRequest, response);
-        } else {
+        } else if ((method.equals("GET")) && uri.startsWith("/brotli")) {
+            ResponseFormatHandler.handleCompression(
+                    baseRequest, request, response, ResponseFormatHandler.CompressionType.BROTLI);
+        } else if ((method.equals("GET")) && uri.startsWith("/deflate")) {
+            ResponseFormatHandler.handleCompression(
+                    baseRequest, request, response, ResponseFormatHandler.CompressionType.DEFLATE);
+        } else if ((method.equals("GET")) && uri.startsWith("/gzip")) {
+            ResponseFormatHandler.handleCompression(
+                    baseRequest, request, response, ResponseFormatHandler.CompressionType.GZIP);
+        }
+
+        // disallowed route
+        if (!baseRequest.isHandled()) {
             response.sendRedirect("/deny");
         }
     }

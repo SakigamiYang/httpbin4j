@@ -8,7 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import static me.sakigamiyang.httpbin4j.handlers.Common.parseMultiValueHeader;
 
 public class ResponseInspectionHandler {
     public static void handleCache(Request baseRequest,
@@ -52,10 +56,6 @@ public class ResponseInspectionHandler {
         }
     }
 
-    private static List<String> parseMultiValueHeader(String headerName) {
-        return new ArrayList<>();
-    }
-
     public static void handleEtag(Request baseRequest,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
@@ -90,12 +90,8 @@ public class ResponseInspectionHandler {
                                              HttpServletResponse response) throws IOException {
         try (OutputStream os = response.getOutputStream()) {
             JSONObject body = new JSONObject();
-            Enumeration<String> parameterNames = request.getParameterNames();
-            while (parameterNames.hasMoreElements()) {
-                String parameterName = parameterNames.nextElement();
-                String[] parameterValues = request.getParameterValues(parameterName);
-                body.put(parameterName, new JSONArray(parameterValues));
-            }
+            Common.enumerationAsStream(request.getParameterNames())
+                    .forEach(name -> body.put(name, new JSONArray(request.getParameterValues(name))));
             body.put("Content-Type", "application/json");
 
             int currBodyLength = body.length();
