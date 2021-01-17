@@ -1,5 +1,7 @@
 package me.sakigamiyang.httpbin4j.handlers;
 
+import com.google.common.base.Strings;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import me.sakigamiyang.httpbin4j.Utils;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.Auth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.BasicAuth;
@@ -197,7 +199,7 @@ public class AuthHandler {
         }
 
         String requestBody = Common.readStream(is);
-        if (checkDigestAuth(request, requestBody, digestAuth, user, passwd)) {
+        if (checkDigestAuth(request, requestBody, digestAuth, user, passwd, algorithm)) {
             digestUnauthorizedResponse(request, response, qop, algorithm, false);
             response.addCookie(new Cookie("stale_after", staleAfter));
             response.addCookie(new Cookie("fake", "fake_value"));
@@ -323,9 +325,73 @@ public class AuthHandler {
                                            String requestBody,
                                            DigestAuth digestAuth,
                                            String user,
-                                           String passwd) {
-        String requestUri = request.getServletPath() + "?" + request.getQueryString();
-        String reponseHash = ""; // TODO
-        return digestAuth.getResponse().equals(reponseHash);
+                                           String passwd,
+                                           String algorithm) {
+        String value = request.getHeader("Authorization");
+        if (Strings.isNullOrEmpty(value)) {
+            return false;
+        }
+
+        Auth auth = parseAuthorizationHeader(value);
+        if (!(auth instanceof DigestAuth)) {
+            return false;
+        }
+
+        String queryString = request.getQueryString();
+        String requestUri = Strings.isNullOrEmpty(queryString) ?
+                request.getServletPath() :
+                request.getServletPath() + "?" + request.getQueryString();
+        HashMap<String, String> requestInfo = new HashMap<String, String>() {{
+            put("uri", requestUri);
+            put("body", requestBody);
+            put("method", request.getMethod());
+        }};
+        String reponseHash = makeResponseHash(auth, passwd, algorithm, requestInfo);
+        return Strings.isNullOrEmpty(reponseHash)
+                && digestAuth.getResponse().equals(reponseHash);
+    }
+
+    private String makeResponseHash(DigestAuth auth,
+                                    String passwd,
+                                    String algorithm,
+                                    Map<String, String> requestInfo) {
+        String hash;
+        // TODO
+        String ha1 = HA1(auth.getRealm(), auth.getUsername(), passwd, algorithm);
+        String ha2 = HA2(auth, requestInfo, algorithm);
+
+        String qop = auth.getQop();
+        if (Strings.isNullOrEmpty(qop)) {
+            hash = H(Utils.joinByteArrays(
+                    ":".getBytes(StandardCharsets.UTF_8),
+                    new byte[][]{
+                            ha1.getBytes(StandardCharsets.UTF_8),
+                            auth.getNonce().getBytes(StandardCharsets.UTF_8),
+                            ha2.getBytes(StandardCharsets.UTF_8)
+                    }), algorithm);
+        } else if ("auth".equalsIgnoreCase(qop) || "auth-int".equalsIgnoreCase(qop)) {
+            String nonce = auth.getNonce();
+            String nc = auth.getNc();
+            String cnonce = auth.getCnonce();
+            if (Strings.isNullOrEmpty(nonce)
+                    || Strings.isNullOrEmpty(nc)
+                    || Strings.isNullOrEmpty(cnonce)) {
+                throw new ValueException("'nonce, nc, cnonce' required for response H");
+            }
+            hash = H(Utils.joinByteArrays(
+                    ":".getBytes(StandardCharsets.UTF_8),
+                    new byte[][]{
+                            ha1.getBytes(StandardCharsets.UTF_8),
+                            nonce.getBytes(StandardCharsets.UTF_8),
+                            nc.getBytes(StandardCharsets.UTF_8),
+                            cnonce.getBytes(StandardCharsets.UTF_8),
+                            qop.getBytes(StandardCharsets.UTF_8),
+                            ha2.getBytes(StandardCharsets.UTF_8)
+                    }), algorithm);
+        } else {
+            throw new ValueException("qop value are wrong");
+        }
+
+        return hash;
     }
 }
