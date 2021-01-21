@@ -14,10 +14,13 @@ import org.json.JSONObject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
 
@@ -346,29 +349,28 @@ public class AuthHandler {
             put("body", requestBody);
             put("method", request.getMethod());
         }};
-        String reponseHash = makeResponseHash(auth, passwd, algorithm, requestInfo);
+        String reponseHash = makeResponseHash((DigestAuth) auth, user, passwd, algorithm, requestInfo);
         return Strings.isNullOrEmpty(reponseHash)
                 && digestAuth.getResponse().equals(reponseHash);
     }
 
-    private String makeResponseHash(DigestAuth auth,
-                                    String passwd,
-                                    String algorithm,
-                                    Map<String, String> requestInfo) {
+    private static String makeResponseHash(DigestAuth auth,
+                                           String user,
+                                           String passwd,
+                                           String algorithm,
+                                           Map<String, String> requestInfo) {
         String hash;
-        // TODO
-        String ha1 = HA1(auth.getRealm(), auth.getUsername(), passwd, algorithm);
+        String ha1 = HA1(auth.getRealm(), user, passwd, algorithm);
         String ha2 = HA2(auth, requestInfo, algorithm);
 
         String qop = auth.getQop();
         if (Strings.isNullOrEmpty(qop)) {
             hash = H(Utils.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
-                    new byte[][]{
-                            ha1.getBytes(StandardCharsets.UTF_8),
-                            auth.getNonce().getBytes(StandardCharsets.UTF_8),
-                            ha2.getBytes(StandardCharsets.UTF_8)
-                    }), algorithm);
+                    ha1.getBytes(StandardCharsets.UTF_8),
+                    auth.getNonce().getBytes(StandardCharsets.UTF_8),
+                    ha2.getBytes(StandardCharsets.UTF_8)),
+                    algorithm);
         } else if ("auth".equalsIgnoreCase(qop) || "auth-int".equalsIgnoreCase(qop)) {
             String nonce = auth.getNonce();
             String nc = auth.getNc();
@@ -380,18 +382,58 @@ public class AuthHandler {
             }
             hash = H(Utils.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
-                    new byte[][]{
-                            ha1.getBytes(StandardCharsets.UTF_8),
-                            nonce.getBytes(StandardCharsets.UTF_8),
-                            nc.getBytes(StandardCharsets.UTF_8),
-                            cnonce.getBytes(StandardCharsets.UTF_8),
-                            qop.getBytes(StandardCharsets.UTF_8),
-                            ha2.getBytes(StandardCharsets.UTF_8)
-                    }), algorithm);
+                    ha1.getBytes(StandardCharsets.UTF_8),
+                    nonce.getBytes(StandardCharsets.UTF_8),
+                    nc.getBytes(StandardCharsets.UTF_8),
+                    cnonce.getBytes(StandardCharsets.UTF_8),
+                    qop.getBytes(StandardCharsets.UTF_8),
+                    ha2.getBytes(StandardCharsets.UTF_8)),
+                    algorithm);
         } else {
             throw new ValueException("qop value are wrong");
         }
 
         return hash;
+    }
+
+    private static String HA1(String realm, String username, String passwd, String algorithm) {
+        if (Strings.isNullOrEmpty(realm)) {
+            realm = "";
+        }
+        return H(Utils.joinByteArrays(
+                ":".getBytes(StandardCharsets.UTF_8),
+                username.getBytes(StandardCharsets.UTF_8),
+                realm.getBytes(StandardCharsets.UTF_8),
+                passwd.getBytes(StandardCharsets.UTF_8)), algorithm);
+    }
+
+    private static String HA2(DigestAuth auth, Map<String, String> requestInfo, String algorithm) {
+        if (Strings.isNullOrEmpty(auth.getQop()) || "auth".equalsIgnoreCase(auth.getQop())) {
+            return H(Utils.joinByteArrays(
+                    ":".getBytes(StandardCharsets.UTF_8),
+                    requestInfo.get("method").getBytes(StandardCharsets.UTF_8),
+                    requestInfo.get("uri").getBytes(StandardCharsets.UTF_8)),
+                    algorithm);
+        } else if ("auth-int".equalsIgnoreCase(auth.getQop())) {
+            return H(Utils.joinByteArrays(
+                    ":".getBytes(StandardCharsets.UTF_8),
+                    requestInfo.get("method").getBytes(StandardCharsets.UTF_8),
+                    requestInfo.get("uri").getBytes(StandardCharsets.UTF_8),
+                    H(requestInfo.get("body").getBytes(StandardCharsets.UTF_8), algorithm)
+                            .getBytes(StandardCharsets.UTF_8)),
+                    algorithm);
+        }
+        return "";
+    }
+
+    private static String H(byte[] inputs, String algorithm) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(algorithm.toUpperCase());
+            md.update(inputs);
+            byte[] digest = md.digest();
+            return DatatypeConverter.printHexBinary(digest).toUpperCase();
+        } catch (NoSuchAlgorithmException e) {
+            return "";
+        }
     }
 }

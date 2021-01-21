@@ -1,5 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
+import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Random;
 
@@ -32,8 +34,38 @@ public class Utils {
      * @param <T>   type of element
      * @return randomly chosen element
      */
-    public static <T> T randomChoice(T[] array) {
+    public static <T> T randomChoice(@Nonnull T[] array) {
         Random rand = new Random((new Date()).getTime());
         return array[rand.nextInt(array.length)];
+    }
+
+    /**
+     * Join byte arrays into one byte array.
+     *
+     * @param delimiter  delimiter
+     * @param byteArrays byte arrays
+     * @return byte array
+     */
+    public static byte[] joinByteArrays(@Nonnull byte[] delimiter, @Nonnull byte[]... byteArrays) {
+        if (byteArrays.length == 0) {
+            return new byte[0];
+        }
+        if (byteArrays.length == 1) {
+            return byteArrays[0];
+        }
+        byte[] result = byteArrays[0];
+        for (int i = 1; i < byteArrays.length; ++i) {
+            result = ByteBuffer.allocate(result.length + delimiter.length)
+                    .put(result)
+                    .put(delimiter)
+                    .array();
+
+            byte[] temp = byteArrays[i];
+            result = ByteBuffer.allocate(result.length + temp.length)
+                    .put(result)
+                    .put(temp)
+                    .array();
+        }
+        return result;
     }
 }
