@@ -238,7 +238,7 @@ public class Common {
         responseData(response, os, body, status, "application/json");
     }
 
-    private static void responseData(HttpServletResponse response,
+    public static void responseData(HttpServletResponse response,
                                      OutputStream os,
                                      byte[] body,
                                      int status,
@@ -284,6 +284,21 @@ public class Common {
                     }
                 },
                 false);
+    }
+
+    /**
+     * Add items in enumeration to a list.
+     *
+     * @param enumeration enumeration
+     * @param <T>         type of elements
+     * @return a new list
+     */
+    public static <T> List<T> enumerationToList(Enumeration<T> enumeration) {
+        List<T> result = new ArrayList<>();
+        while (enumeration.hasMoreElements()) {
+            result.add(enumeration.nextElement());
+        }
+        return result;
     }
 
     /**

@@ -88,8 +88,6 @@ public class HttpBinHandler extends AbstractHandler {
             RequestInspectionHandler.handleIP(baseRequest, request, response);
         } else if (method.equals("GET") && uri.startsWith("/user-agent")) {
             RequestInspectionHandler.handleUserAgent(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/cache")) {
-            ResponseInspectionHandler.handleCache(baseRequest, request, response);
         } else if (method.equals("GET") && uri.startsWith("/cache/")) {
             // /cache/{value}
             try {
@@ -99,6 +97,8 @@ public class HttpBinHandler extends AbstractHandler {
             } catch (NumberFormatException e) {
                 response.sendRedirect("/deny");
             }
+        } else if (method.equals("GET") && uri.startsWith("/cache")) {
+            ResponseInspectionHandler.handleCache(baseRequest, request, response);
         } else if (method.equals("GET") && uri.startsWith("/etag/")) {
             // /etag/{etag}
             String etag = uri.substring("/etag/".length());
@@ -130,6 +130,16 @@ public class HttpBinHandler extends AbstractHandler {
             ResponseFormatHandler.handleXML(baseRequest, response);
         } else if (method.equals("GET") && uri.startsWith("/robots.txt")) {
             ResponseFormatHandler.handleRobotsTxt(baseRequest, response);
+        } else if (method.equals("GET") && uri.startsWith("/image/jpeg")) {
+            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.JPEG);
+        } else if (method.equals("GET") && uri.startsWith("/image/png")) {
+            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.PNG);
+        } else if (method.equals("GET") && uri.startsWith("/image/svg")) {
+            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.SVG);
+        } else if (method.equals("GET") && uri.startsWith("/image/webp")) {
+            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.WEBP);
+        } else if (method.equals("GET") && uri.startsWith("/image")) {
+            ImageHandler.handleImage(baseRequest, request, response);
         }
 
         // disallowed route
