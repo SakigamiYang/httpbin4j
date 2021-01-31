@@ -68,12 +68,7 @@ public class HttpBinHandler extends AbstractHandler {
             String user = auth[0];
             String passwd = auth[1];
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
-        } else if ((method.equals("GET")
-                || method.equals("POST")
-                || method.equals("PUT")
-                || method.equals("DELETE")
-                || method.equals("PATCH"))
-                && uri.startsWith("/status/")) {
+        } else if (uri.startsWith("/status/")) {
             // /status/{codes}
             try {
                 String[] strCodes = uri.substring("/status/".length()).split(",");
@@ -140,6 +135,8 @@ public class HttpBinHandler extends AbstractHandler {
             ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.WEBP);
         } else if (method.equals("GET") && uri.startsWith("/image")) {
             ImageHandler.handleImage(baseRequest, request, response);
+        } else if (uri.startsWith("/anything")) {
+            AnythingHandler.handle(baseRequest, request, response);
         }
 
         // disallowed route
