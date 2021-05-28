@@ -22,8 +22,6 @@ import java.util.stream.StreamSupport;
  * Common.
  */
 public class Common {
-    private static final Pattern VALID_HEADER_VALUE = Pattern.compile("\\s*(W/)?\"?([^\"]*)\"?\\s*");
-
     /**
      * Null output stream.
      */
@@ -321,28 +319,6 @@ public class Common {
         }
 
         return result;
-    }
-
-    /**
-     * Parse multi-value header
-     *
-     * @param headerValue header value, separated by half-width comma
-     * @return list of items in header value
-     */
-    public static List<String> parseMultiValueHeader(String headerValue) {
-        List<String> parsedParts = new ArrayList<>();
-        if (!Strings.isNullOrEmpty(headerValue)) {
-            for (String part : headerValue.split(",")) {
-                Matcher matcher = VALID_HEADER_VALUE.matcher(part);
-                if (matcher.find()) {
-                    String value = matcher.group(2);
-                    if (!Strings.isNullOrEmpty(value)) {
-                        parsedParts.add(value);
-                    }
-                }
-            }
-        }
-        return parsedParts;
     }
 
     /**

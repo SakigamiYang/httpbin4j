@@ -1,26 +1,22 @@
-group "me.sakigamiyang"
-version "1.0.0"
-
-apply plugin: "java"
-
-wrapper {
-    distributionType = Wrapper.DistributionType.ALL
+plugins {
+    id 'java'
 }
 
+group = "me.sakigamiyang"
+version = "1.0.0"
+sourceCompatibility = "11"
+targetCompatibility = "11"
+
 repositories {
-    mavenLocal()
-    maven { url "https://maven.aliyun.com/repository/central" }
     mavenCentral()
 }
 
 dependencies {
-    compile "org.json:json:20210307"
-    compile "com.google.guava:guava:30.1.1-jre"
-    compile "com.googlecode.json-simple:json-simple:1.1.1"
-    compile "org.eclipse.jetty.aggregate:jetty-all:9.4.31.v20200723"
-    compile "org.projectlombok:lombok:1.18.20"
-
-    annotationProcessor "org.projectlombok:lombok:1.18.20"
-
-    testCompile "junit:junit:4.13.2"
+    implementation group: 'io.javalin', name: 'javalin', version: '3.13.7'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.20'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }

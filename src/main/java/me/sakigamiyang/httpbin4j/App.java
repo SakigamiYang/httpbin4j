@@ -1,23 +1,58 @@
 package me.sakigamiyang.httpbin4j;
 
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jetty.server.Server;
+import io.javalin.Javalin;
+import me.sakigamiyang.httpbin4j.controllers.*;
+
+import javax.servlet.http.HttpServletResponse;
+
+import static io.javalin.apibuilder.ApiBuilder.*;
 
 /**
  * App.
  */
-@Slf4j
 public class App {
-    public static void main(String[] args) throws Throwable {
-        Server server = new Server(80);
-        server.setHandler(new HttpBinHandler());
+    public static void main(String[] args) {
+        Javalin app = Javalin.create();
+        makingControllers(app);
+        app.start();
+    }
 
-        try {
-            server.start();
-            server.join();
-        } finally {
-            server.stop();
-            server.destroy();
-        }
+    private static void makingControllers(Javalin app) {
+        app.get("/", new IndexController());
+        app.get("/deny", new DenyController());
+
+        // HTTP methods
+        app.get("/get", new HttpMethodController());
+        app.post("/post", new HttpMethodController());
+        app.put("/put", new HttpMethodController());
+        app.patch("/patch", new HttpMethodController());
+        app.delete("/delete", new HttpMethodController());
+
+        // Status codes
+        StatusCodesController statusCodesController = new StatusCodesController();
+        app.routes(() -> {
+            path("/status/:statusCodes", () -> {
+                get(statusCodesController);
+                post(statusCodesController);
+                put(statusCodesController);
+                patch(statusCodesController);
+                delete(statusCodesController);
+            });
+        });
+
+        // Request inspection
+        app.get("/headers", new RequestInspectionController.HeadersController());
+        app.get("/ip", new RequestInspectionController.IpController());
+        app.get("/user-agent", new RequestInspectionController.UserAgentController());
+
+        // Response inspection
+        app.get("/cache", new ResponseInspectionController.CacheController());
+        app.get("/cache/:value", new ResponseInspectionController.CacheValueController());
+        app.get("/etag/:etag", new ResponseInspectionController.EtagController());
+
+        // Others
+        app.error(HttpServletResponse.SC_NOT_FOUND, ctx -> {
+            ctx.redirect("/deny");
+        });
     }
 }

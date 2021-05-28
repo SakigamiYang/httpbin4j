@@ -26,17 +26,7 @@ public class HttpBinHandler extends AbstractHandler {
         String method = request.getMethod();
         String uri = request.getRequestURI();
 
-        if (uri.equals("/")) {
-            HomeHandler.handle(baseRequest, response);
-        } else if (uri.startsWith("/deny")) {
-            DenyHandler.handle(baseRequest, response);
-        } else if ((method.equals("DELETE") && uri.equals("/delete"))
-                || (method.equals("GET") && uri.equals("/get"))
-                || (method.equals("PATCH") && uri.equals("/patch"))
-                || (method.equals("POST") && uri.equals("/post"))
-                || (method.equals("PUT") && uri.equals("/put"))) {
-            HttpMethodHandler.handleHttpMethod(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/basic-auth/")) {
+        if (method.equals("GET") && uri.startsWith("/basic-auth/")) {
             // /basic-auth/{user}/{passwd}
             String[] auth = uri.substring("/basic-auth/".length()).split("/", 2);
             if (auth.length != 2) {
@@ -68,41 +58,10 @@ public class HttpBinHandler extends AbstractHandler {
             String user = auth[0];
             String passwd = auth[1];
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
-        } else if (uri.startsWith("/status/")) {
-            // /status/{codes}
-            try {
-                String[] strCodes = uri.substring("/status/".length()).split(",");
-                Integer[] codes = Arrays.stream(strCodes).map(Integer::parseInt).toArray(Integer[]::new);
-                StatusCodeHandler.handleStatus(baseRequest, request, response, codes);
-            } catch (Throwable t) {
-                response.sendRedirect("/deny");
-            }
-        } else if (method.equals("GET") && uri.startsWith("/headers")) {
-            RequestInspectionHandler.handleHeaders(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/ip")) {
-            RequestInspectionHandler.handleIP(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/user-agent")) {
-            RequestInspectionHandler.handleUserAgent(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/cache/")) {
-            // /cache/{value}
-            try {
-                String strValue = uri.substring("/cache/".length());
-                int value = Integer.parseInt(strValue);
-                ResponseInspectionHandler.handleCacheValue(baseRequest, request, response, value);
-            } catch (NumberFormatException e) {
-                response.sendRedirect("/deny");
-            }
-        } else if (method.equals("GET") && uri.startsWith("/cache")) {
-            ResponseInspectionHandler.handleCache(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/etag/")) {
-            // /etag/{etag}
-            String etag = uri.substring("/etag/".length());
-            ResponseInspectionHandler.handleEtag(baseRequest, request, response, etag);
-        } else if ((method.equals("GET")
-                || method.equals("POST"))
-                && uri.startsWith("/response-headers")) {
-            ResponseInspectionHandler.handleResponseHeaders(baseRequest, request, response);
-        } else if (method.equals("GET") && uri.startsWith("/brotli")) {
+        }
+
+
+        else if (method.equals("GET") && uri.startsWith("/brotli")) {
             ResponseFormatHandler.handleCompression(
                     baseRequest, request, response, ResponseFormatHandler.CompressionType.BROTLI);
         } else if (method.equals("GET") && uri.startsWith("/deflate")) {
@@ -125,7 +84,11 @@ public class HttpBinHandler extends AbstractHandler {
             ResponseFormatHandler.handleXML(baseRequest, response);
         } else if (method.equals("GET") && uri.startsWith("/robots.txt")) {
             ResponseFormatHandler.handleRobotsTxt(baseRequest, response);
-        } else if (method.equals("GET") && uri.startsWith("/image/jpeg")) {
+        }
+
+
+
+        else if (method.equals("GET") && uri.startsWith("/image/jpeg")) {
             ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.JPEG);
         } else if (method.equals("GET") && uri.startsWith("/image/png")) {
             ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.PNG);
@@ -135,7 +98,11 @@ public class HttpBinHandler extends AbstractHandler {
             ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.WEBP);
         } else if (method.equals("GET") && uri.startsWith("/image")) {
             ImageHandler.handleImage(baseRequest, request, response);
-        } else if (uri.startsWith("/anything")) {
+        }
+
+
+
+        else if (uri.startsWith("/anything")) {
             AnythingHandler.handle(baseRequest, request, response);
         }
 

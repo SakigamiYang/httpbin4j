@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Random;
 
-public class Utils {
+public class Helpers {
     /**
      * Return string if not null, else empty string.
      *

@@ -2,7 +2,7 @@ package me.sakigamiyang.httpbin4j.handlers;
 
 import com.google.common.base.Strings;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
-import me.sakigamiyang.httpbin4j.Utils;
+import me.sakigamiyang.httpbin4j.Helpers;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.Auth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.BasicAuth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.BearerAuth;
@@ -146,7 +146,7 @@ public class AuthHandler {
                                    String algorithm,
                                    String staleAfter) throws IOException {
         boolean requireCookieHandling = DIGEST_AUTH_REQUIRE_COOKIE_HANDLING_FLAGS.contains(
-                Utils.ifNullSetEmpty(request.getParameter("require-cookie")).toLowerCase()
+                Helpers.ifNullSetEmpty(request.getParameter("require-cookie")).toLowerCase()
         );
         if (!DIGEST_AUTH_QOP_LIST.contains(qop)) {
             qop = null;
@@ -365,7 +365,7 @@ public class AuthHandler {
 
         String qop = auth.getQop();
         if (Strings.isNullOrEmpty(qop)) {
-            hash = H(Utils.joinByteArrays(
+            hash = H(Helpers.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
                     ha1.getBytes(StandardCharsets.UTF_8),
                     auth.getNonce().getBytes(StandardCharsets.UTF_8),
@@ -380,7 +380,7 @@ public class AuthHandler {
                     || Strings.isNullOrEmpty(cnonce)) {
                 throw new ValueException("'nonce, nc, cnonce' required for response H");
             }
-            hash = H(Utils.joinByteArrays(
+            hash = H(Helpers.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
                     ha1.getBytes(StandardCharsets.UTF_8),
                     nonce.getBytes(StandardCharsets.UTF_8),
@@ -400,7 +400,7 @@ public class AuthHandler {
         if (Strings.isNullOrEmpty(realm)) {
             realm = "";
         }
-        return H(Utils.joinByteArrays(
+        return H(Helpers.joinByteArrays(
                 ":".getBytes(StandardCharsets.UTF_8),
                 username.getBytes(StandardCharsets.UTF_8),
                 realm.getBytes(StandardCharsets.UTF_8),
@@ -409,13 +409,13 @@ public class AuthHandler {
 
     private static String HA2(DigestAuth auth, Map<String, String> requestInfo, String algorithm) {
         if (Strings.isNullOrEmpty(auth.getQop()) || "auth".equalsIgnoreCase(auth.getQop())) {
-            return H(Utils.joinByteArrays(
+            return H(Helpers.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
                     requestInfo.get("method").getBytes(StandardCharsets.UTF_8),
                     requestInfo.get("uri").getBytes(StandardCharsets.UTF_8)),
                     algorithm);
         } else if ("auth-int".equalsIgnoreCase(auth.getQop())) {
-            return H(Utils.joinByteArrays(
+            return H(Helpers.joinByteArrays(
                     ":".getBytes(StandardCharsets.UTF_8),
                     requestInfo.get("method").getBytes(StandardCharsets.UTF_8),
                     requestInfo.get("uri").getBytes(StandardCharsets.UTF_8),

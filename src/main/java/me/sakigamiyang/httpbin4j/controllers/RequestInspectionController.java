@@ -21,7 +21,7 @@ public class RequestInspectionController {
         @Override
         public void handle(@NotNull Context ctx) {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-            ctx.json(new TreeMap<String, String>() {{
+            ctx.json(new TreeMap<String, Object>() {{
                 put("origin", ctx.ip());
             }});
         }
@@ -31,7 +31,7 @@ public class RequestInspectionController {
         @Override
         public void handle(@NotNull Context ctx) {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-            ctx.json(new TreeMap<String, String>() {{
+            ctx.json(new TreeMap<String, Object>() {{
                 put("user-agent", ctx.userAgent());
             }});
         }
