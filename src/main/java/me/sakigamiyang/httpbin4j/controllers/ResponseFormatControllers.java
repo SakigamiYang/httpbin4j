@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.TreeMap;
 
-public class ResponseFormatsControllers {
+public class ResponseFormatControllers {
     public static class BrotliController implements Handler {
         @Override
         public void handle(@NotNull Context ctx) {

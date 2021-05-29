@@ -30,7 +30,7 @@ public class App {
         app.delete("/delete", new HttpMethodController());
 
         // Status codes
-        StatusCodesController statusCodesController = new StatusCodesController();
+        StatusCodeController statusCodesController = new StatusCodeController();
         app.routes(() -> path("/status/:statusCodes", () -> {
             get(statusCodesController);
             post(statusCodesController);
@@ -50,15 +50,18 @@ public class App {
         app.get("/etag/:etag", new ResponseInspectionControllers.EtagController());
 
         // Response formats
-        app.get("/brotli", new ResponseFormatsControllers.BrotliController());
-        app.get("/deflate", new ResponseFormatsControllers.DeflateController());
-        app.get("/deny", new ResponseFormatsControllers.DenyController());
-        app.get("/encoding/utf8", new ResponseFormatsControllers.EncodingUTF8Controller());
-        app.get("/gzip", new ResponseFormatsControllers.GzipController());
-        app.get("/html", new ResponseFormatsControllers.HTMLController());
-        app.get("/json", new ResponseFormatsControllers.JsonController());
-        app.get("/robots.txt", new ResponseFormatsControllers.RobotsTxtController());
-        app.get("/xml", new ResponseFormatsControllers.XMLController());
+        app.get("/brotli", new ResponseFormatControllers.BrotliController());
+        app.get("/deflate", new ResponseFormatControllers.DeflateController());
+        app.get("/deny", new ResponseFormatControllers.DenyController());
+        app.get("/encoding/utf8", new ResponseFormatControllers.EncodingUTF8Controller());
+        app.get("/gzip", new ResponseFormatControllers.GzipController());
+        app.get("/html", new ResponseFormatControllers.HTMLController());
+        app.get("/json", new ResponseFormatControllers.JsonController());
+        app.get("/robots.txt", new ResponseFormatControllers.RobotsTxtController());
+        app.get("/xml", new ResponseFormatControllers.XMLController());
+
+        // Images
+        app.get("/image/:image_format", new ImageController());
 
         // Others
         app.error(HttpServletResponse.SC_NOT_FOUND, ctx -> ctx.redirect("/deny"));

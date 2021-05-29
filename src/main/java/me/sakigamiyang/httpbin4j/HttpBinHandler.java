@@ -61,46 +61,6 @@ public class HttpBinHandler extends AbstractHandler {
         }
 
 
-        else if (method.equals("GET") && uri.startsWith("/brotli")) {
-            ResponseFormatHandler.handleCompression(
-                    baseRequest, request, response, ResponseFormatHandler.CompressionType.BROTLI);
-        } else if (method.equals("GET") && uri.startsWith("/deflate")) {
-            ResponseFormatHandler.handleCompression(
-                    baseRequest, request, response, ResponseFormatHandler.CompressionType.DEFLATE);
-        } else if (method.equals("GET") && uri.startsWith("/gzip")) {
-            ResponseFormatHandler.handleCompression(
-                    baseRequest, request, response, ResponseFormatHandler.CompressionType.GZIP);
-        } else if (method.equals("GET") && uri.startsWith("/encoding/utf8")) {
-            ResponseFormatHandler.handleEncodingUTF8(baseRequest, response);
-        } else if (method.equals("GET") && uri.startsWith("/html")) {
-            ResponseFormatHandler.handleHTML(baseRequest, response);
-        } else if (method.equals("GET") && uri.startsWith("/json")) {
-            try {
-                ResponseFormatHandler.handleJSON(baseRequest, response);
-            } catch (ParseException e) {
-                response.sendRedirect("/deny");
-            }
-        } else if (method.equals("GET") && uri.startsWith("/xml")) {
-            ResponseFormatHandler.handleXML(baseRequest, response);
-        } else if (method.equals("GET") && uri.startsWith("/robots.txt")) {
-            ResponseFormatHandler.handleRobotsTxt(baseRequest, response);
-        }
-
-
-
-        else if (method.equals("GET") && uri.startsWith("/image/jpeg")) {
-            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.JPEG);
-        } else if (method.equals("GET") && uri.startsWith("/image/png")) {
-            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.PNG);
-        } else if (method.equals("GET") && uri.startsWith("/image/svg")) {
-            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.SVG);
-        } else if (method.equals("GET") && uri.startsWith("/image/webp")) {
-            ImageHandler.handleImageWithType(baseRequest, response, ImageHandler.ImageType.WEBP);
-        } else if (method.equals("GET") && uri.startsWith("/image")) {
-            ImageHandler.handleImage(baseRequest, request, response);
-        }
-
-
 
         else if (uri.startsWith("/anything")) {
             AnythingHandler.handle(baseRequest, request, response);
