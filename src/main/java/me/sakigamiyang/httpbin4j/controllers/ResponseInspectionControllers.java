@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static me.sakigamiyang.httpbin4j.HttpUtil.parseMultiValueHeader;
 
-public class ResponseInspectionController {
+public class ResponseInspectionControllers {
     public static class CacheController implements Handler {
         @Override
         public void handle(@NotNull Context ctx) {

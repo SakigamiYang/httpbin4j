@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.util.TreeMap;
 
-public class RequestInspectionController {
+public class RequestInspectionControllers {
     public static class HeadersController implements Handler {
         @Override
         public void handle(@NotNull Context ctx) {
