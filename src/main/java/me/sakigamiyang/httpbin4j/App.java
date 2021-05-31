@@ -63,6 +63,16 @@ public class App {
         // Images
         app.get("/image/:image_format", new ImageController());
 
+        // Anything
+        AnythingController anythingController = new AnythingController();
+        app.routes(() -> path("/anything/:anything", () -> {
+            get(anythingController);
+            post(anythingController);
+            put(anythingController);
+            patch(anythingController);
+            delete(anythingController);
+        }));
+
         // Others
         app.error(HttpServletResponse.SC_NOT_FOUND, ctx -> ctx.redirect("/deny"));
     }

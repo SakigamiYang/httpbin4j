@@ -59,16 +59,5 @@ public class HttpBinHandler extends AbstractHandler {
             String passwd = auth[1];
             AuthHandler.handleHiddenBasicAuth(baseRequest, request, response, user, passwd);
         }
-
-
-
-        else if (uri.startsWith("/anything")) {
-            AnythingHandler.handle(baseRequest, request, response);
-        }
-
-        // disallowed route
-        if (!baseRequest.isHandled()) {
-            response.sendRedirect("/deny");
-        }
     }
 }
