@@ -1,7 +1,14 @@
 package me.sakigamiyang.httpbin4j;
 
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+
 import javax.annotation.Nonnull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Random;
 
@@ -67,5 +74,23 @@ public class Helpers {
                     .array();
         }
         return result;
+    }
+
+    /**
+     * Compress a string.
+     *
+     * @param s string
+     * @return byte array of compressed string
+     */
+    public static byte[] compress(String s, String compressorStreamFactory) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             CompressorOutputStream compressorOutputStream =
+                     CompressorStreamFactory.getSingleton().createCompressorOutputStream(
+                             compressorStreamFactory, byteArrayOutputStream)) {
+            compressorOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException | CompressorException e) {
+            throw new RuntimeException("Failed to gzip content", e);
+        }
     }
 }

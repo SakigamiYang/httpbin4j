@@ -1,8 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
 import io.javalin.Javalin;
-import io.javalin.core.compression.Brotli;
-import io.javalin.core.compression.Gzip;
+import io.javalin.core.compression.CompressionStrategy;
 import me.sakigamiyang.httpbin4j.controllers.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +13,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
  */
 public class App {
     public static void main(String[] args) {
-        Javalin app = Javalin.create(config -> config.compressionStrategy(new Brotli(4), new Gzip(6)));
+        Javalin app = Javalin.create(config -> config.compressionStrategy(CompressionStrategy.NONE));
         makingControllers(app);
         app.start();
     }

@@ -2,8 +2,11 @@ package me.sakigamiyang.httpbin4j.controllers;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.plugin.json.JavalinJson;
+import me.sakigamiyang.httpbin4j.Helpers;
 import me.sakigamiyang.httpbin4j.HttpUtil;
 import me.sakigamiyang.httpbin4j.handlers.Common;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,12 +19,14 @@ public class ResponseFormatControllers {
         public void handle(@NotNull Context ctx) {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
             ctx.header("Content-Encoding", "br");
-            ctx.json(new TreeMap<String, Object>() {{
+            ctx.contentType("application/json");
+            String data = JavalinJson.toJson(new TreeMap<String, Object>() {{
                 put("origin", ctx.ip());
                 put("method", ctx.method());
                 put("headers", ctx.headerMap());
                 put("brotli", true);
             }});
+            ctx.result(Helpers.compress(data, CompressorStreamFactory.BROTLI));
         }
     }
 
@@ -30,12 +35,14 @@ public class ResponseFormatControllers {
         public void handle(@NotNull Context ctx) {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
             ctx.header("Content-Encoding", "deflate");
-            ctx.json(new TreeMap<String, Object>() {{
+            ctx.contentType("application/json");
+            String data = JavalinJson.toJson(new TreeMap<String, Object>() {{
                 put("origin", ctx.ip());
                 put("method", ctx.method());
                 put("headers", ctx.headerMap());
                 put("deflated", true);
             }});
+            ctx.result(Helpers.compress(data, CompressorStreamFactory.DEFLATE));
         }
     }
 
@@ -62,12 +69,14 @@ public class ResponseFormatControllers {
         public void handle(@NotNull Context ctx) {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
             ctx.header("Content-Encoding", "gzip");
-            ctx.json(new TreeMap<String, Object>() {{
+            ctx.contentType("application/json");
+            String data = JavalinJson.toJson(new TreeMap<String, Object>() {{
                 put("origin", ctx.ip());
                 put("method", ctx.method());
                 put("headers", ctx.headerMap());
                 put("gzipped", true);
             }});
+            ctx.result(Helpers.compress(data, CompressorStreamFactory.GZIP));
         }
     }
 
