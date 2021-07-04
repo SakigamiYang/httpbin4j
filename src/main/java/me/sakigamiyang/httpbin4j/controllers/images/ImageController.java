@@ -1,4 +1,4 @@
-package me.sakigamiyang.httpbin4j.controllers;
+package me.sakigamiyang.httpbin4j.controllers.images;
 
 import com.google.common.base.Strings;
 import io.javalin.http.Context;
@@ -19,6 +19,7 @@ public class ImageController implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
         String imageType = ctx.pathParam("image_type");
+
         if (Strings.isNullOrEmpty(imageType)) {
             String accept = ctx.header("accept");
             if (Strings.isNullOrEmpty(accept)) {

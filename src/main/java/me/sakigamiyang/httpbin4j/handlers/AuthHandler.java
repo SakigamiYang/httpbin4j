@@ -1,7 +1,6 @@
 package me.sakigamiyang.httpbin4j.handlers;
 
 import com.google.common.base.Strings;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import me.sakigamiyang.httpbin4j.Helpers;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.Auth;
 import me.sakigamiyang.httpbin4j.handlers.entity.auth.BasicAuth;
@@ -14,7 +13,6 @@ import org.json.JSONObject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,95 +44,6 @@ public class AuthHandler {
                     DIGEST_AUTH_INFO_KEY_RESPONSE);
 
     private static final Random rand = new Random(19880124);
-
-    public static void handleBasicAuth(Request baseRequest,
-                                       HttpServletRequest request,
-                                       HttpServletResponse response,
-                                       String user,
-                                       String passwd) throws IOException {
-        try (OutputStream os = response.getOutputStream()) {
-            basicAuth(request, response, os, user, passwd, HttpServletResponse.SC_UNAUTHORIZED);
-            baseRequest.setHandled(true);
-        }
-    }
-
-    public static void handleHiddenBasicAuth(Request baseRequest,
-                                             HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             String user,
-                                             String passwd) throws IOException {
-        try (OutputStream os = response.getOutputStream()) {
-            basicAuth(request, response, os, user, passwd, HttpServletResponse.SC_NOT_FOUND);
-            baseRequest.setHandled(true);
-        }
-    }
-
-    public static void handleBearer(Request baseRequest,
-                                    HttpServletRequest request,
-                                    HttpServletResponse response) throws IOException {
-        try (OutputStream os = response.getOutputStream()) {
-            bearer(request, response, os);
-            baseRequest.setHandled(true);
-        }
-    }
-
-    public static void handleDigestAuth(Request baseRequest,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        String qop,
-                                        String user,
-                                        String passwd,
-                                        String algorithm,
-                                        String staleAfter) throws IOException {
-        try (InputStream is = request.getInputStream();
-             OutputStream os = response.getOutputStream()) {
-            digestAuth(request, response, is, os, qop, user, passwd, algorithm, staleAfter);
-            baseRequest.setHandled(true);
-        }
-    }
-
-    private static void basicAuth(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  OutputStream os,
-                                  String user,
-                                  String passwd,
-                                  int failureStatus) throws IOException {
-        Auth auth = parseAuthorizationHeader(request.getHeader("Authorization"));
-        if (!(auth instanceof BasicAuth)) {
-            response.setHeader("WWW-Authenticate", "Basic");
-            response.setStatus(failureStatus);
-            return;
-        }
-
-        BasicAuth basicAuth = (BasicAuth) auth;
-        if (!user.equals(basicAuth.getUsername()) || !passwd.equals(basicAuth.getPassword())) {
-            response.setHeader("WWW-Authenticate", "Basic");
-            response.setStatus(failureStatus);
-            return;
-        }
-
-        JSONObject body = new JSONObject();
-        body.put("authenticated", true);
-        body.put("user", user);
-        Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
-    }
-
-    private static void bearer(HttpServletRequest request,
-                               HttpServletResponse response,
-                               OutputStream os) throws IOException {
-        Auth auth = parseAuthorizationHeader(request.getHeader("Authorization"));
-        if (!(auth instanceof BearerAuth)) {
-            response.setHeader("WWW-Authenticate", "Bearer");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        BearerAuth bearerAuth = (BearerAuth) auth;
-        JSONObject body = new JSONObject();
-        body.put("authenticated", true);
-        body.put("token", bearerAuth.getToken());
-        Common.respondJSON(response, os, body, HttpServletResponse.SC_OK);
-    }
 
     private static void digestAuth(HttpServletRequest request,
                                    HttpServletResponse response,
@@ -221,36 +130,7 @@ public class AuthHandler {
     }
 
     private static Auth parseAuthorizationHeader(String value) {
-        if (value == null) {
-            return null;
-        }
-
-        String authType, authInfo;
-        try {
-            String[] tempArray = value.split(" ", 2);
-            authType = tempArray[0].toLowerCase().trim();
-            authInfo = tempArray[1].trim();
-        } catch (Throwable t) {
-            return null;
-        }
-
         switch (authType) {
-            case BasicAuth.TYPE:
-                try {
-                    byte[] bytes = Base64.getDecoder().decode(authInfo);
-                    String[] tempArray = new String(bytes, StandardCharsets.UTF_8).split(":", 2);
-                    return new BasicAuth(tempArray[0], tempArray[1]);
-                } catch (Throwable t) {
-                    // do nothing
-                }
-                break;
-            case BearerAuth.TYPE:
-                try {
-                    return new BearerAuth(authInfo);
-                } catch (Throwable t) {
-                    // do nothing
-                }
-                break;
             case DigestAuth.TYPE:
                 try {
                     Map<String, String> headerDict = Common.parseDictHeader(authInfo);

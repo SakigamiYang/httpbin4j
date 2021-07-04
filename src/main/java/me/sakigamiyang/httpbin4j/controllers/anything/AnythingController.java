@@ -1,4 +1,4 @@
-package me.sakigamiyang.httpbin4j.controllers;
+package me.sakigamiyang.httpbin4j.controllers.anything;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;

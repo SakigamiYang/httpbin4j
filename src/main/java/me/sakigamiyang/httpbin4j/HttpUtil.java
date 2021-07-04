@@ -8,9 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,5 +64,27 @@ public class HttpUtil {
             }
         }
         return parsedParts;
+    }
+
+    /**
+     * Parse header with like "k1=v1,k2=v2,...".
+     *
+     * @param value header value
+     * @return k-v map
+     */
+    public static Map<String, String> parseDictHeader(String value) {
+        Map<String, String> result = new TreeMap<>();
+
+        if (value != null) {
+            for (String item : value.split(",")) {
+                if (!item.contains("=")) {
+                    result.put(item, null);
+                }
+                String[] tempArray = item.split("=", 2);
+                result.put(tempArray[0].trim(), tempArray[1].replaceAll("\"", "").trim());
+            }
+        }
+
+        return result;
     }
 }
