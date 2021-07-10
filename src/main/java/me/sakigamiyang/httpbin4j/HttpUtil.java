@@ -1,6 +1,7 @@
 package me.sakigamiyang.httpbin4j;
 
 import com.google.common.base.Strings;
+import com.google.common.hash.Hashing;
 import com.google.common.io.ByteStreams;
 import io.javalin.http.Context;
 import me.sakigamiyang.httpbin4j.handlers.Common;
@@ -86,5 +87,24 @@ public class HttpUtil {
         }
 
         return result;
+    }
+
+    /**
+     * hash functions
+     *
+     * @param data      data
+     * @param algorithm algorithm
+     * @return hash result string
+     */
+    @SuppressWarnings({"deprecation", "UnstableApiUsage"})
+    public static String hash(String data, String algorithm) {
+        switch (algorithm) {
+            case "sha-256":
+                return Hashing.sha256().hashBytes(data.getBytes()).toString();
+            case "sha-512":
+                return Hashing.sha512().hashBytes(data.getBytes()).toString();
+            default:
+                return Hashing.md5().hashBytes(data.getBytes()).toString();
+        }
     }
 }
