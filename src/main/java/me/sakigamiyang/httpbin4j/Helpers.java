@@ -16,16 +16,6 @@ public class Helpers {
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
-     * Return string if not null, else empty string.
-     *
-     * @param s string
-     * @return string if not null, or else empty string
-     */
-    public static String ifNullSetEmpty(String s) {
-        return ifNullSetDefault(s, "");
-    }
-
-    /**
      * Return string if not null, else specific default value.
      *
      * @param s            string
