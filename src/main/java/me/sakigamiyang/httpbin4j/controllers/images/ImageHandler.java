@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletResponse;
 
-public class ImageController implements Handler {
+public class ImageHandler implements Handler {
     private enum ImageType {
         JPEG,
         PNG,

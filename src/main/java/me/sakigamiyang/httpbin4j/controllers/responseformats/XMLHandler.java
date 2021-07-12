@@ -1,4 +1,4 @@
-package me.sakigamiyang.httpbin4j.controllers;
+package me.sakigamiyang.httpbin4j.controllers.responseformats;
 
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -8,11 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
-public class IndexController implements Handler {
+public class XMLHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
-        byte[] body = HttpUtil.getResource("/index.html");
+        byte[] body = HttpUtil.getResource("/demo.xml");
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-        ctx.html(new String(body, StandardCharsets.UTF_8));
+        ctx.contentType("application/xml");
+        ctx.result(new String(body, StandardCharsets.UTF_8));
     }
 }

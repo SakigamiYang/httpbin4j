@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
-public class JsonController implements Handler {
+public class JsonHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
         byte[] body = HttpUtil.getResource("/demo.json");

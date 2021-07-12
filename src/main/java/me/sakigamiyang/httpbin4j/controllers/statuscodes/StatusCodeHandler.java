@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public class StatusCodeController implements Handler {
+public class StatusCodeHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         try {

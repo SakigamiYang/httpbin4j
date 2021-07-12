@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class BasicController implements Handler {
+public class BasicHandler implements Handler {
     private final boolean hidden;
 
-    public BasicController(boolean hidden) {
+    public BasicHandler(boolean hidden) {
         this.hidden = hidden;
     }
 

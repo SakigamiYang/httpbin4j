@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class BearerController implements Handler {
+public class BearerHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         String authHeader = ctx.header("Authorization");

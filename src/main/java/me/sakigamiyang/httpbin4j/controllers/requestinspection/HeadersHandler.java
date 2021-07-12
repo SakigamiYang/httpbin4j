@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletResponse;
 
-public class HeadersController implements Handler {
+public class HeadersHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);

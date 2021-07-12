@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.*;
 
-public class DigestController implements Handler {
+public class DigestHandler implements Handler {
     private static final String DIGEST_AUTH_DEFAULT_ALGORITHM = "md5";
     private static final String DIGEST_AUTH_DEFAULT_STALE_AFTER = "never";
     private static final List<String> DIGEST_AUTH_REQUIRE_COOKIE_HANDLING_FLAGS = Arrays.asList("1", "t", "true");

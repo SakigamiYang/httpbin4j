@@ -8,11 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
-public class EncodingUTF8Controller implements Handler {
+public class RobotsTxtHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
-        byte[] body = HttpUtil.getResource("/demo.txt");
+        byte[] body = HttpUtil.getResource("/robots.txt");
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-        ctx.html(new String(body, StandardCharsets.UTF_8));
+        ctx.contentType("text/plain");
+        ctx.result(new String(body, StandardCharsets.UTF_8));
     }
 }

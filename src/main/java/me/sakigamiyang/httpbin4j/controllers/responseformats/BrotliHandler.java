@@ -11,18 +11,18 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.util.TreeMap;
 
-public class DeflateController implements Handler {
+public class BrotliHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-        ctx.header("Content-Encoding", "deflate");
+        ctx.header("Content-Encoding", "br");
         ctx.contentType("application/json");
         String data = JavalinJson.toJson(new TreeMap<String, Object>() {{
             put("origin", ctx.ip());
             put("method", ctx.method());
             put("headers", ctx.headerMap());
-            put("deflated", true);
+            put("brotli", true);
         }});
-        ctx.result(Helpers.compress(data, CompressorStreamFactory.DEFLATE));
+        ctx.result(Helpers.compress(data, CompressorStreamFactory.BROTLI));
     }
 }

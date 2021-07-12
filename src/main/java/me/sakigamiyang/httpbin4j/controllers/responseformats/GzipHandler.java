@@ -11,18 +11,18 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.util.TreeMap;
 
-public class BrotliController implements Handler {
+public class GzipHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
-        ctx.header("Content-Encoding", "br");
+        ctx.header("Content-Encoding", "gzip");
         ctx.contentType("application/json");
         String data = JavalinJson.toJson(new TreeMap<String, Object>() {{
             put("origin", ctx.ip());
             put("method", ctx.method());
             put("headers", ctx.headerMap());
-            put("brotli", true);
+            put("gzipped", true);
         }});
-        ctx.result(Helpers.compress(data, CompressorStreamFactory.BROTLI));
+        ctx.result(Helpers.compress(data, CompressorStreamFactory.GZIP));
     }
 }

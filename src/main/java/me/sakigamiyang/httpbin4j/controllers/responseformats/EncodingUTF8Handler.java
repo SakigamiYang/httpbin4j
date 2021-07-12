@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
-public class HTMLController implements Handler {
+public class EncodingUTF8Handler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) throws Exception {
-        byte[] body = HttpUtil.getResource("/demo.html");
+        byte[] body = HttpUtil.getResource("/demo.txt");
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
         ctx.html(new String(body, StandardCharsets.UTF_8));
     }

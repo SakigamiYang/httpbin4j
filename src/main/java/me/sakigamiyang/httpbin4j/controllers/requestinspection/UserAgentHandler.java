@@ -8,12 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.servlet.http.HttpServletResponse;
 import java.util.TreeMap;
 
-public class IPController implements Handler {
+public class UserAgentHandler implements Handler {
     @Override
     public void handle(@NotNull Context ctx) {
         HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
         ctx.json(new TreeMap<String, Object>() {{
-            put("origin", ctx.ip());
+            put("user-agent", ctx.userAgent());
         }});
     }
 }
