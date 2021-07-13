@@ -8,6 +8,10 @@ import me.sakigamiyang.httpbin4j.controllers.anything.AnythingHandler;
 import me.sakigamiyang.httpbin4j.controllers.auth.BasicHandler;
 import me.sakigamiyang.httpbin4j.controllers.auth.BearerHandler;
 import me.sakigamiyang.httpbin4j.controllers.auth.DigestHandler;
+import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesDeleteHandler;
+import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesHandler;
+import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetHandler;
+import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetNameValueHandler;
 import me.sakigamiyang.httpbin4j.controllers.httpmethods.HttpMethodHandler;
 import me.sakigamiyang.httpbin4j.controllers.images.ImageHandler;
 import me.sakigamiyang.httpbin4j.controllers.redirects.AbsoluteRedirectHandler;
@@ -84,6 +88,12 @@ public class App {
         app.get("/json", new JsonHandler());
         app.get("/robots.txt", new RobotsTxtHandler());
         app.get("/xml", new XMLHandler());
+
+        // Cookies
+        app.get("/cookies", new CookiesHandler());
+        app.get("/cookies/set", new CookiesSetHandler());
+        app.get("/cookies/set/:name/:value", new CookiesSetNameValueHandler());
+        app.get("/cookies/delete", new CookiesDeleteHandler());
 
         // Images
         app.get("/image/:image_format", new ImageHandler());
