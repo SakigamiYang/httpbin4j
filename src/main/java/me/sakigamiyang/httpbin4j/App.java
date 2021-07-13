@@ -12,6 +12,10 @@ import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesDeleteHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetNameValueHandler;
+import me.sakigamiyang.httpbin4j.controllers.dynamicdata.Base64Handler;
+import me.sakigamiyang.httpbin4j.controllers.dynamicdata.BytesHandler;
+import me.sakigamiyang.httpbin4j.controllers.dynamicdata.DelayHandler;
+import me.sakigamiyang.httpbin4j.controllers.dynamicdata.UUID4Handler;
 import me.sakigamiyang.httpbin4j.controllers.httpmethods.HttpMethodHandler;
 import me.sakigamiyang.httpbin4j.controllers.images.ImageHandler;
 import me.sakigamiyang.httpbin4j.controllers.redirects.AbsoluteRedirectHandler;
@@ -28,8 +32,6 @@ import me.sakigamiyang.httpbin4j.controllers.responseinspection.ETagHandler;
 import me.sakigamiyang.httpbin4j.controllers.statuscodes.StatusCodeHandler;
 
 import javax.servlet.http.HttpServletResponse;
-
-import static io.javalin.apibuilder.ApiBuilder.*;
 
 /**
  * App.
@@ -61,13 +63,7 @@ public class App {
         app.get("/digest-auth/:qop/:user/:passwd/:algorithm/:stale_after", new DigestHandler());
 
         // Status codes
-        app.routes(() -> path("/status/:statusCodes", () -> {
-            get(new StatusCodeHandler());
-            post(new StatusCodeHandler());
-            put(new StatusCodeHandler());
-            patch(new StatusCodeHandler());
-            delete(new StatusCodeHandler());
-        }));
+        app.get("/status/:statusCodes", new StatusCodeHandler());
 
         // Request inspection
         app.get("/headers", new HeadersHandler());
@@ -89,6 +85,12 @@ public class App {
         app.get("/robots.txt", new RobotsTxtHandler());
         app.get("/xml", new XMLHandler());
 
+        // Dynamic data
+        app.get("/base64/:value", new Base64Handler());
+        app.get("/bytes/:n", new BytesHandler());
+        app.get("/delay/:delay", new DelayHandler());
+        app.get("/uuid", new UUID4Handler());
+
         // Cookies
         app.get("/cookies", new CookiesHandler());
         app.get("/cookies/set", new CookiesSetHandler());
@@ -101,23 +103,11 @@ public class App {
         // Redirects
         app.get("/absolute-redirect/:n", new AbsoluteRedirectHandler());
         app.get("/relative-redirect/:n", new RelativeRedirectHandler());
-        app.routes(() -> path("/redirect-to", () -> {
-            get(new RedirectToHandler());
-            post(new RedirectToHandler());
-            put(new RedirectToHandler());
-            patch(new RedirectToHandler());
-            delete(new RedirectToHandler());
-        }));
+        app.get("/redirect-to", new RedirectToHandler());
         app.get("/redirect/:n", new RedirectHandler());
 
         // Anything
-        app.routes(() -> path("/anything/:anything", () -> {
-            get(new AnythingHandler());
-            post(new AnythingHandler());
-            put(new AnythingHandler());
-            patch(new AnythingHandler());
-            delete(new AnythingHandler());
-        }));
+        app.get("/anything/:anything", new AnythingHandler());
 
         // Others
         app.error(HttpServletResponse.SC_NOT_FOUND, ctx -> ctx.redirect("/deny"));
