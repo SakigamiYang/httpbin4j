@@ -2,6 +2,7 @@ package me.sakigamiyang.httpbin4j;
 
 import io.javalin.Javalin;
 import io.javalin.core.compression.CompressionStrategy;
+import lombok.extern.slf4j.Slf4j;
 import me.sakigamiyang.httpbin4j.controllers.DenyHandler;
 import me.sakigamiyang.httpbin4j.controllers.IndexHandler;
 import me.sakigamiyang.httpbin4j.controllers.anything.AnythingHandler;
@@ -36,11 +37,15 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * App.
  */
+@Slf4j
 public class App {
     public static void main(String[] args) {
         Javalin app = Javalin.create(config -> config.compressionStrategy(CompressionStrategy.NONE));
         makingControllers(app);
-        app.start();
+        app.events(eventListener ->
+                eventListener.serverStarted(
+                        () -> log.info("[httpbin4j] server started")));
+        app.start("0.0.0.0", 8080);
     }
 
     private static void makingControllers(Javalin app) {
@@ -55,15 +60,15 @@ public class App {
         app.delete("/delete", new HttpMethodHandler());
 
         // Auth
-        app.get("/basic-auth/:user/:passwd", new BasicHandler(false));
-        app.get("/hidden-basic-auth/:user/:passwd", new BasicHandler(true));
+        app.get("/basic-auth/{user}/{passwd}", new BasicHandler(false));
+        app.get("/hidden-basic-auth/{user}/{passwd}", new BasicHandler(true));
         app.get("/bearer", new BearerHandler());
-        app.get("/digest-auth/:qop/:user/:passwd", new DigestHandler());
-        app.get("/digest-auth/:qop/:user/:passwd/:algorithm", new DigestHandler());
-        app.get("/digest-auth/:qop/:user/:passwd/:algorithm/:stale_after", new DigestHandler());
+        app.get("/digest-auth/{qop}/{user}/{passwd}", new DigestHandler());
+        app.get("/digest-auth/{qop}/{user}/{passwd}/{algorithm}", new DigestHandler());
+        app.get("/digest-auth/{qop}/{user}/{passwd}/{algorithm}/{stale_after}", new DigestHandler());
 
         // Status codes
-        app.get("/status/:statusCodes", new StatusCodeHandler());
+        app.get("/status/{statusCodes}", new StatusCodeHandler());
 
         // Request inspection
         app.get("/headers", new HeadersHandler());
@@ -72,8 +77,8 @@ public class App {
 
         // Response inspection
         app.get("/cache", new CacheHandler());
-        app.get("/cache/:value", new CacheValueHandler());
-        app.get("/etag/:etag", new ETagHandler());
+        app.get("/cache/{value}", new CacheValueHandler());
+        app.get("/etag/{etag}", new ETagHandler());
 
         // Response formats
         app.get("/brotli", new BrotliHandler());
@@ -86,28 +91,28 @@ public class App {
         app.get("/xml", new XMLHandler());
 
         // Dynamic data
-        app.get("/base64/:value", new Base64Handler());
-        app.get("/bytes/:n", new BytesHandler());
-        app.get("/delay/:delay", new DelayHandler());
+        app.get("/base64/{value}", new Base64Handler());
+        app.get("/bytes/{n}", new BytesHandler());
+        app.get("/delay/{delay}", new DelayHandler());
         app.get("/uuid", new UUID4Handler());
 
         // Cookies
         app.get("/cookies", new CookiesHandler());
         app.get("/cookies/set", new CookiesSetHandler());
-        app.get("/cookies/set/:name/:value", new CookiesSetNameValueHandler());
+        app.get("/cookies/set/{name}/{value}", new CookiesSetNameValueHandler());
         app.get("/cookies/delete", new CookiesDeleteHandler());
 
         // Images
-        app.get("/image/:image_format", new ImageHandler());
+        app.get("/image/{image_format}", new ImageHandler());
 
         // Redirects
-        app.get("/absolute-redirect/:n", new AbsoluteRedirectHandler());
-        app.get("/relative-redirect/:n", new RelativeRedirectHandler());
+        app.get("/absolute-redirect/{n}", new AbsoluteRedirectHandler());
+        app.get("/relative-redirect/{n}", new RelativeRedirectHandler());
         app.get("/redirect-to", new RedirectToHandler());
-        app.get("/redirect/:n", new RedirectHandler());
+        app.get("/redirect/{n}", new RedirectHandler());
 
         // Anything
-        app.get("/anything/:anything", new AnythingHandler());
+        app.get("/anything/{anything}", new AnythingHandler());
 
         // Others
         app.error(HttpServletResponse.SC_NOT_FOUND, ctx -> ctx.redirect("/deny"));

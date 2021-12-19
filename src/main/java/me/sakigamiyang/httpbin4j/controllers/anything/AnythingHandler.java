@@ -3,7 +3,7 @@ package me.sakigamiyang.httpbin4j.controllers.anything;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.UploadedFile;
-import io.javalin.plugin.json.JavalinJson;
+import io.javalin.plugin.json.JavalinJackson;
 import me.sakigamiyang.httpbin4j.HttpUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +14,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class AnythingHandler implements Handler {
+    private final JavalinJackson jackson = new JavalinJackson();
+
     @Override
     public void handle(@NotNull Context ctx) {
         Map<String, Object> body = new TreeMap<>();
@@ -28,7 +30,7 @@ public class AnythingHandler implements Handler {
             body.put("data", ctx.body());
             body.put("form", "");
             try {
-                body.put("json", JavalinJson.fromJson(ctx.body(), Object.class));
+                body.put("json", jackson.fromJsonString(ctx.body(), Object.class));
             } catch (Throwable t) {
                 body.put("json", null);
             }

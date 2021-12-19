@@ -6,7 +6,7 @@ import me.sakigamiyang.httpbin4j.HttpUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
+import java.util.Optional;
 
 public class RedirectToHandler implements Handler {
     @Override
@@ -23,7 +23,7 @@ public class RedirectToHandler implements Handler {
         } catch (Throwable t) {
             // do nothing
         }
-        ctx.header("Location", Objects.requireNonNull(ctx.queryParam("url", "")));
+        ctx.header("Location", Optional.ofNullable(ctx.queryParam("url")).orElse(""));
         HttpUtil.responseData(ctx, statusCode);
         ctx.html("");
     }

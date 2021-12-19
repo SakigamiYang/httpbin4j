@@ -34,7 +34,7 @@ public class DigestHandler implements Handler {
         String staleAfter = ctx.pathParam("stale_after");
 
         boolean requireCookieHandling = DIGEST_AUTH_REQUIRE_COOKIE_HANDLING_FLAGS.contains(
-                ctx.queryParam("require-cookie", "")
+                Optional.ofNullable(ctx.queryParam("require-cookie")).orElse("")
         );
 
         if (!DIGEST_AUTH_QOP_LIST.contains(qop)) {
