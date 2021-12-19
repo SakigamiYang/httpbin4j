@@ -29,7 +29,7 @@ public class HttpMethodHandler implements Handler {
                 body.put("json", null);
             }
         }
-        body.put("url", ctx.fullUrl());
+        body.put("url", ctx.url());
         body.put("origin", ctx.ip());
         body.put("headers", ctx.headerMap());
         body.put("args", ctx.queryParamMap());

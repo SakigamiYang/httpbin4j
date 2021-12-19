@@ -36,7 +36,7 @@ public class AnythingHandler implements Handler {
             }
         }
 
-        body.put("url", ctx.fullUrl());
+        body.put("url", ctx.url());
         body.put("method", ctx.method());
         body.put("origin", ctx.ip());
         body.put("headers", ctx.headerMap());

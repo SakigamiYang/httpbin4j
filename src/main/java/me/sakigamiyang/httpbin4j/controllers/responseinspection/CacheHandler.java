@@ -25,7 +25,7 @@ public class CacheHandler implements Handler {
             ctx.header("Last-Modified", String.valueOf(new Date().getTime()))
                     .header("ETag", UUID.randomUUID().toString().replace("-", ""));
             ctx.json(new TreeMap<String, Object>() {{
-                put("url", ctx.fullUrl());
+                put("url", ctx.url());
                 put("origin", ctx.ip());
                 put("headers", ctx.headerMap());
                 put("args", ctx.queryParamMap());

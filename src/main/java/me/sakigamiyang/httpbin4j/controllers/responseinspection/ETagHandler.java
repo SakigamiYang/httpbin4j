@@ -31,7 +31,7 @@ public class ETagHandler implements Handler {
             HttpUtil.responseData(ctx, HttpServletResponse.SC_OK);
             ctx.header("ETag", eTag);
             ctx.json(new TreeMap<String, Object>() {{
-                put("url", ctx.fullUrl());
+                put("url", ctx.url());
                 put("origin", ctx.ip());
                 put("headers", ctx.headerMap());
                 put("args", ctx.queryParamMap());

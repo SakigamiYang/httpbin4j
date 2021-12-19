@@ -139,7 +139,7 @@ public class DigestHandler implements Handler {
                                            String passwd,
                                            String algorithm) {
         Map<String, String> requestInfo = new TreeMap<>() {{
-            put("uri", ctx.fullUrl());
+            put("uri", ctx.url());
             put("body", ctx.body());
             put("method", ctx.method());
         }};

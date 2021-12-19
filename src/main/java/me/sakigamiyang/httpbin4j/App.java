@@ -13,10 +13,7 @@ import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesDeleteHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetHandler;
 import me.sakigamiyang.httpbin4j.controllers.cookies.CookiesSetNameValueHandler;
-import me.sakigamiyang.httpbin4j.controllers.dynamicdata.Base64Handler;
-import me.sakigamiyang.httpbin4j.controllers.dynamicdata.BytesHandler;
-import me.sakigamiyang.httpbin4j.controllers.dynamicdata.DelayHandler;
-import me.sakigamiyang.httpbin4j.controllers.dynamicdata.UUID4Handler;
+import me.sakigamiyang.httpbin4j.controllers.dynamicdata.*;
 import me.sakigamiyang.httpbin4j.controllers.httpmethods.HttpMethodHandler;
 import me.sakigamiyang.httpbin4j.controllers.images.ImageHandler;
 import me.sakigamiyang.httpbin4j.controllers.redirects.AbsoluteRedirectHandler;
@@ -41,14 +38,14 @@ import javax.servlet.http.HttpServletResponse;
 public class App {
     public static void main(String[] args) {
         Javalin app = Javalin.create(config -> config.compressionStrategy(CompressionStrategy.NONE));
-        makingControllers(app);
+        addRoutes(app);
         app.events(eventListener ->
                 eventListener.serverStarted(
                         () -> log.info("[httpbin4j] server started")));
         app.start("0.0.0.0", 8080);
     }
 
-    private static void makingControllers(Javalin app) {
+    private static void addRoutes(Javalin app) {
         app.get("/", new IndexHandler());
         app.get("/deny", new DenyHandler());
 
@@ -79,6 +76,7 @@ public class App {
         app.get("/cache", new CacheHandler());
         app.get("/cache/{value}", new CacheValueHandler());
         app.get("/etag/{etag}", new ETagHandler());
+        // TODO: response-headers
 
         // Response formats
         app.get("/brotli", new BrotliHandler());
@@ -94,7 +92,10 @@ public class App {
         app.get("/base64/{value}", new Base64Handler());
         app.get("/bytes/{n}", new BytesHandler());
         app.get("/delay/{delay}", new DelayHandler());
+        app.get("/stream-bytes/{n}", new StreamBytesHandler());
+        app.get("/stream/{n}", new StreamHandler());
         app.get("/uuid", new UUID4Handler());
+        // TODO: drip, links/n/offset, range/numbytes
 
         // Cookies
         app.get("/cookies", new CookiesHandler());
